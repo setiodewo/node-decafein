@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "decafein API server",
   "main": "decafein.js",
+  "type": "module",
   "scripts": {
     "test": "node decafein.js"
   },
   "author": "Emanuel Setio Dewo",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "mysql2": "^3.11.0"
   }
