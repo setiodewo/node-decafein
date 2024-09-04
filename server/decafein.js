@@ -31,8 +31,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    //res.redirect('/c/index.html');
-    res.status(200).send('Decafein API');
+    res.redirect('/c/index.html');
 });
 
 app.listen(port, () => {
