@@ -1,0 +1,15 @@
+{
+  "name": "decafein-server",
+  "version": "1.0.0",
+  "description": "decafein API server",
+  "main": "decafein.js",
+  "scripts": {
+    "test": "node decafein.js"
+  },
+  "author": "Emanuel Setio Dewo",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0"
+  }
+}
