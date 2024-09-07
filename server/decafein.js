@@ -33,8 +33,10 @@ app.use((req, res, next) => {
 // routers
 import login from "./router/login.js";
 
+app.use("/login", login);
+
 app.get('/', (req, res) => {
-    res.redirect('/c/index.html');
+    res.redirect('../client/index.html');
 });
 
 app.listen(port, () => {

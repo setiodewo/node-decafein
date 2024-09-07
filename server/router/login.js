@@ -11,8 +11,8 @@ router.get("/", (req, res) => {
 
 router.post("/", async(req, res) => {
     try {
-        const [result, fields] = await db.query('select * from user where email=? and pwd=MD5(?) limit 1',
-            [req.body.em, req.body.pwd]);
+        const [result, fields] = await db.query(`select * from user where userName=? and pwd=MD5(?) limit 1`,
+            [req.body.uname, req.body.pwd]);
         if (result.length == 0) {
             console.log("Gagal login");
             res.send({
@@ -21,15 +21,15 @@ router.post("/", async(req, res) => {
             });
         } else {
             // TODO: Cek table cafe
-            const [cafe, flds] = await db.query(`select uc.id, uc.userId, uc.cafeId,
-                c.name
+            const [cafe, flds] = await db.query(`select c.*
                 from user_cafe uc
+                left outer join cafe c on c.id = uc.cafeId
                 where uc.userId = ? and uc.cafeId = ?`,
-                [result[0].id, req.body.kode]);
+                [result[0].id, req.body.cafe]);
             if (cafe.length == 0) {
                 res.status(200).send({
                     "ok": 0,
-                    "message" : "Akun valid, tetapi cafe tidak valid!"
+                    "message" : `Akun valid, tetapi cafe tidak valid!`
                 });
             } else {
                 // Token
@@ -38,16 +38,15 @@ router.post("/", async(req, res) => {
                     [token, result[0].id]
                 );
                 // Tulis log
-                /*
-                await db.query("insert into user_log set userId=?, token=?, timestamp=now()",
-                    [result[0].id, token]
+                await db.query("insert into user_login set userId=?, cafeId=?, token=?, loginAt=now(), logoutAt=now()",
+                    [result[0].id, req.body.cafe, token]
                 );
-                */
                 console.log("Login berhasil");
                 result[0].token = token;
                 res.status(200).send({
                     "ok": 1,
                     "profile" : result[0],
+                    "cafe": cafe[0],
                     "message": "success"
                 });
             }

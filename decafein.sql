@@ -2,10 +2,12 @@
 
 create database decafein;
 create user decafein@localhost identified with caching_sha2_password by '5w4t1z3n2024!';
+grant all privileges on *.* to decafein@localhost;
+flush privileges;
 
 use decafein;
 
-create user_level (
+create table user_level (
     id int primary key,
     name varchar(128)
 );
@@ -15,6 +17,7 @@ insert into user_level values
 
 create table user(
     id int auto_increment primary key,
+    userName varchar(128),
     name varchar(128),
     email varchar(256),
     phone varchar(128),
@@ -22,23 +25,27 @@ create table user(
     token text,
     active smallint default 1,
     createdAt datetime,
-    index(name),
+    index(userName),
     index(email)
 );
 
 insert into user values
-(1, 'Emanuel Setio Dewo', 'dewo@swatizen.com', '+6281932509003', MD5('5w4t1z3n2024!'), '', 1, now());
+(1, 'dewo', 'Emanuel Setio Dewo', 'dewo@swatizen.com', '+6281932509003', MD5('5w4t1z3n2024!'), '', 1, now());
 
 create table user_login (
     id bigint auto_increment primary key,
     userId int,
+    cafeId varchar(16),
     token text,
     loginAt datetime,
-    logoutAt datetime
+    logoutAt datetime,
+    index(userId),
+    index(cafeId),
+    index(loginAt)
 );
 
 create table cafe (
-    id int auto_increment primary key,
+    id varchar(16) primary key,
     ownerId int,
     name varchar(128),
     address text,
@@ -57,12 +64,12 @@ create table cafe (
 );
 
 insert into cafe values
-(1, 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', 1, 1, now());
+('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', 1, 1, now());
 
 create table user_cafe (
     id int auto_increment primary key,
     userId int,
-    cafeId int,
+    cafeId varchar(16),
     levelId smallint default 2,
     createdBy int,
     createdAt datetime,
@@ -73,9 +80,9 @@ create table user_cafe (
 );
 
 insert into user_cafe values
-(1, 1, 1, 1, 1, now());
+(1, 1, 'DECAFEIN', 1, 1, now());
 
-create table menu_type (
+create table menu_category (
     id int auto_increment primary key,
     cafeId int,
     name varchar(128),
@@ -89,7 +96,7 @@ create table menu_type (
     index(createdBy)
 );
 
-insert into menu_type values
+insert into menu_category values
 (1, 1, 'Food', '', 1, 1, now()),
 (2, 1, 'Beverage', '', 1, 1, now()),
 (3, 1, 'Snack', '', 1, 1, now());
@@ -98,7 +105,7 @@ create table menu (
     id int auto_increment primary key,
     cafeId int,
     name varchar(128),
-    typeId int,
+    categoryId int,
     description text,
     currency varchar(5) default 'IDR',
     basePrice decimal(10,2) default 0,
@@ -108,7 +115,7 @@ create table menu (
     createdAt datetime,
     index(cafeId),
     index(name),
-    index(typeId),
+    index(categoryId),
     index(createdBy),
     index(createdAt)
 );
