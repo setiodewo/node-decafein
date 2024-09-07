@@ -30,6 +30,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// routers
+import login from "./router/login.js";
+
 app.get('/', (req, res) => {
     res.redirect('/c/index.html');
 });
