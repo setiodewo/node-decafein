@@ -117,7 +117,6 @@ async function fn_edit_menu(menuId) {
         blank_dlg_title.innerHTML = "Tambah Menu";
         blank_prg.style.display = 'none';
     } else {
-        blank_prg.style.display = 'block';
         const data = await fetch(`${API}/menu/edit/${menuId}`, {
             method: 'GET',
             headers: {
@@ -164,10 +163,10 @@ async function fn_simpan_menu(btn) {
             blank_dlg.hide();
             get_master_menu();
         } else {
-            alert(ok.message);
+            alert(ret.message);
         }
     }).catch(err => {
-        alert(err);
+        alert(err.message);
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
@@ -230,6 +229,127 @@ function render_master_menu(data) {
         </tr>`;
     });
     return `${ret}</table>`;
+}
+
+async function fn_master_kategori() {
+    main.innerHTML = `
+        <div class="input-group" style="padding: 16px;">
+            <button class="btn btn-outline-secondary" onclick="get_master_kategori()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-outline-secondary" onclick="fn_edit_kategori()">
+                <i class="bi bi-plus"></i> Tambah Kategori
+            </button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Kategori</th>
+                <th>Icon</th>
+                <th>Aktif</th>
+            </thead>
+            <tbody id="table_kategori"></tbody>
+        </table>`;
+    get_master_kategori();
+}
+
+async function get_master_kategori() {
+    await fetch(`${API}/menu/kategori`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    })
+    .then(j => j.json())
+    .then(data => {
+        var b = document.getElementById('table_kategori');
+        b.innerHTML = '';
+        data.forEach(d => {
+            let aktif = (d.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
+            b.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td class="align-middle">
+                    <button class="btn btn-secondary" onclick="fn_edit_kategori(${d.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </td>
+                <td class="align-middle">${d.name}</td>
+                <td class="align-middle">
+                    <i class="${d.icon}"></i>
+                </td>
+                <td class="align-middle">${aktif}</td>
+            </tr>`);
+        })
+    }).catch(err => {
+        console.error(err);
+    });
+}
+
+async function fn_edit_kategori(id) {
+    const editor = await fetch_static('./static/edit_kategori.html');
+    const btn = `
+        <button type="button" class="btn btn-primary" onclick="fn_simpan_kategori(this)">
+            <i class="bi bi-floppy"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Edit Kategori', editor, btn);
+
+    if (id == null) {
+        blank_dlg_title.innerHTML = "Tambah Kategori";
+        blank_prg.style.display = 'none';
+    } else {
+        const data = await fetch(`${API}/menu/kategori1/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            }
+        }).then(j => j.json()).then(d => {
+            populate_form('frm_edit_kategori', d);
+            if (d.active == 1) {
+                document.getElementById('active').checked = true;
+            } else {
+                document.getElementById('active').checked = false;
+            }
+        }).catch(err => {
+            alert(err.message);
+        });
+        blank_prg.style.display = 'none';
+    }
+}
+
+async function fn_simpan_kategori(btn) {
+    if (invalid_input('frm_edit_kategori', 'name', 'Masukkan nama kategori!')) return;
+    btn.style.display = 'none';
+    blank_prg.display = 'inline-block';
+
+    await fetch(`${API}/menu/simpankategori`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify(serialize_form('frm_edit_kategori'))
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 1) {
+            blank_dlg.hide();
+            get_master_kategori();
+        } else {
+            alert(ret.message);
+        }
+    }).catch(err => {
+        alert(err.message);
+    });
+    btn.style.display = 'inline-block';
+    blank_prg.style.display = 'none';
 }
 
 async function fn_penjualan() {

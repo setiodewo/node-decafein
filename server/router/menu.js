@@ -29,13 +29,23 @@ router.get('/', async(req, res) => {
 
 router.get('/kategori', async(req, res) => {
     try {
-        const [r, f] = await db.query(`select id, name from menu_category where cafeId=? order by name`,
+        const [r, f] = await db.query(`select id, name, icon, active from menu_category where cafeId=? order by name`,
             [req.headers.cafe]);
         res.send(r);
     } catch(err) {
         res.status(500).send(err.message);
     }
 });
+
+router.get('/kategori1/:id', async(req, res) => {
+    try {
+        const [r, f] = await db.query(`select id, name, icon, active, 0 as md from menu_category where id=? and cafeId=?`,
+            [req.params.id, req.headers.cafe]);
+        res.send(r[0]);
+    } catch(err) {
+        res.status(500).send(err.message);
+    }
+})
 
 router.get('/edit/:id', async(req, res) => {
     try {
@@ -58,7 +68,7 @@ router.post('/simpan', async(req, res) => {
             basePrice = ?,
             COGS = ?,
             active = ?
-            where id = ?`, [
+            where id = ? and cafeId = ?`, [
                 req.body.name,
                 req.body.categoryId,
                 req.body.description,
@@ -66,7 +76,8 @@ router.post('/simpan', async(req, res) => {
                 req.body.basePrice,
                 req.body.COGS,
                 req.body.active,
-                req.body.id
+                req.body.id,
+                req.headers.cafe
             ]);
         res.send({ok: r.affectedRows, message: r.info});
     } else {
@@ -92,8 +103,41 @@ router.post('/simpan', async(req, res) => {
                 req.body.active,
                 req.headers.id
             ]);
-        console.log('result', r);
         res.send({ok: 1, message: r.info});
+    }
+});
+
+router.post('/simpankategori', async(req, res) => {
+    if (req.body.md == 0) {
+        // Edit
+        const [r, f] = await db.query(`update menu_category
+            set name = ?,
+            icon = ?,
+            active = ?
+            where id = ? and cafeId = ?`, [
+                req.body.name,
+                req.body.icon,
+                req.body.active,
+                req.body.id,
+                req.headers.cafe
+            ]);
+        res.send({ ok: r.affectedRows, message: r.info });
+    } else {
+        // Insert
+        const [r, f] = await db.query(`insert into menu_category
+            set name = ?,
+            cafeId = ?,
+            icon = ?,
+            active = ?,
+            createdBy = ?,
+            createdAt = now()`, [
+                req.body.name,
+                req.headers.cafe,
+                req.body.icon,
+                req.body.active,
+                req.headers.id
+            ]);
+        res.send({ ok: 1, message: r.info });
     }
 })
 
