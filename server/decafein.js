@@ -32,8 +32,10 @@ app.use((req, res, next) => {
 
 // routers
 import login from "./router/login.js";
+import menu from "./router/menu.js";
 
 app.use("/login", login);
+app.use("/menu", menu);
 
 app.get('/', (req, res) => {
     res.redirect('../client/index.html');

@@ -84,7 +84,7 @@ insert into user_cafe values
 
 create table menu_category (
     id int auto_increment primary key,
-    cafeId int,
+    cafeId varchar(16),
     name varchar(128),
     icon varchar(128),
     active smallint default 1,
@@ -97,13 +97,13 @@ create table menu_category (
 );
 
 insert into menu_category values
-(1, 1, 'Food', '', 1, 1, now()),
-(2, 1, 'Beverage', '', 1, 1, now()),
-(3, 1, 'Snack', '', 1, 1, now());
+(1, 'DECAFEIN', 'Food', '', 1, 1, now()),
+(2, 'DECAFEIN', 'Beverage', '', 1, 1, now()),
+(3, 'DECAFEIN', 'Snack', '', 1, 1, now());
 
 create table menu (
     id int auto_increment primary key,
-    cafeId int,
+    cafeId varchar(16),
     name varchar(128),
     categoryId int,
     description text,
@@ -121,6 +121,6 @@ create table menu (
 );
 
 insert into menu values
-(1, 1, 'Hot Cappuccino', 2, 'Cappuccino Panas', 'IDR', 20000.0, 15000.0, 1, 1, now()),
-(2, 1, 'Hot Espresso', 2, 'Espresso 150ml', 'IDR', 17500.0, 14000.0, 1, 1, now()),
-(3, 1, 'Chocolate Croissant', 3, 'Chocolate Croissant', 'IDR', 15000.0, 12500.0, 1, 1, now());
+(1, 'DECAFEIN', 'Hot Cappuccino', 2, 'Cappuccino Panas', 'IDR', 20000.0, 15000.0, 1, 1, now()),
+(2, 'DECAFEIN', 'Hot Espresso', 2, 'Espresso 150ml', 'IDR', 17500.0, 14000.0, 1, 1, now()),
+(3, 'DECAFEIN', 'Chocolate Croissant', 3, 'Chocolate Croissant', 'IDR', 15000.0, 12500.0, 1, 1, now());
