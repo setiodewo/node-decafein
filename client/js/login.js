@@ -36,8 +36,8 @@ frm.addEventListener("submit", async(event) => {
         if (data.ok == 0) {
             alert(data.message);
         } else {
-            await localStorage.setItem('profile', JSON.stringify(data.profile));
-            await localStorage.setItem('cafe', JSON.stringify(data.cafe));
+            localStorage.setItem('profile', JSON.stringify(data.profile));
+            localStorage.setItem('cafe', JSON.stringify(data.cafe));
             window.location = "index.html";
         }
     }).catch(err => {

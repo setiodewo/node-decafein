@@ -21,7 +21,7 @@ router.post("/", async(req, res) => {
             });
         } else {
             // TODO: Cek table cafe
-            const [cafe, flds] = await db.query(`select c.*
+            const [cafe, flds] = await db.query(`select c.*, uc.levelId
                 from user_cafe uc
                 left outer join cafe c on c.id = uc.cafeId
                 where uc.userId = ? and uc.cafeId = ?`,

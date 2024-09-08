@@ -13,13 +13,14 @@ const blank_prg = document.getElementById('blank_prg');
 
 window.addEventListener("load", async(ev) => {
     // Cek profile
-    const p = await localStorage.getItem('profile');
-    const c = await localStorage.getItem('cafe');
+    const p = localStorage.getItem('profile');
+    const c = localStorage.getItem('cafe');
     if (p === null || c === null) {
         window.location = "login.html";
     }
     profile = await JSON.parse(p);
     cafe = await JSON.parse(c);
+    console.log(cafe);
 
     // infoUserName
     const infoUserName = document.getElementById('infoUserName');
@@ -29,7 +30,7 @@ window.addEventListener("load", async(ev) => {
 });
 
 async function fn_logout() {
-    await localStorage.clear();
+    localStorage.clear();
     window.location = "login.html";
 }
 
@@ -203,22 +204,29 @@ function render_master_menu(data) {
             <th scope="col">Kategori</th>
             <th scope="col" colspan=2>Harga</th>
             <th scope="col">HPP</th>
+            <th scope="col" colspan=2>Gambar</th>
             <th scope="col">Aktif</th>
         </tr>`;
     d.forEach(r => {
         let aktif = (r.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
         ret += `<tr>
         <td>
-            <a href="#" onclick="fn_edit_menu(${r.id})">
+            <a href="#" onclick="fn_edit_menu(${r.id})" class="btn btn-secondary">
                 <i class="bi-pencil"></i>
             </a>
         </td>
-        <td>${r.name}</td>
-        <td>${r.categoryName}</td>
-        <td>${r.currency}</td>
-        <td>${Number(r.basePrice).toLocaleString()}</td>
-        <td>${Number(r.COGS).toLocaleString()}</td>
-        <td>${aktif}</td>
+        <th class="align-middle" role="row">${r.name}</th>
+        <td class="align-middle">${r.categoryName}</td>
+        <td class="align-middle">${r.currency}</td>
+        <td class="align-middle">${Number(r.basePrice).toLocaleString()}</td>
+        <td class="align-middle">${Number(r.COGS).toLocaleString()}</td>
+        <td class="align-middle">
+            <a href="#" onclick="fn_upload_gambar_menu(${r.id})" class="btn btn-secondary">
+                <i class="bi-cloud-upload"></i>
+            </a>
+        </td>
+        <td class="align-middle"></i></td>
+        <td class="align-middle">${aktif}</td>
         </tr>`;
     });
     return `${ret}</table>`;
