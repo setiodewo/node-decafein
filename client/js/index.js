@@ -57,7 +57,7 @@ function show_modal(title='Judul', body='body', footer='footer') {
     blank_dlg.show();
 }
 
-async function get_opsi_kategori(def = '') {
+async function get_opsi_kategori() {
     return await fetch(`${API}/menu/kategori`, {
         method: 'GET',
         headers: {
@@ -67,6 +67,25 @@ async function get_opsi_kategori(def = '') {
         }
     }).then(j => j.json()).then(opsi => {
         var o = `<option value=''>( Semua )</option>`;
+        opsi.forEach(k => {
+            o += `<option value='${k.id}'>${k.name}</option>`;
+        });
+        return o;
+    }).catch(err => {
+        console.error(err.message);
+    })
+}
+
+async function get_opsi_level() {
+    return await fetch(`${API}/user/level`, {
+        method: 'GET',
+        headers: {
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(opsi => {
+        var o = `<option value=''></option>`;
         opsi.forEach(k => {
             o += `<option value='${k.id}'>${k.name}</option>`;
         });
@@ -266,6 +285,10 @@ async function get_master_kategori() {
     })
     .then(j => j.json())
     .then(data => {
+        if (data.ok == 0) {
+            alert(data.message);
+            return;
+        }
         var b = document.getElementById('table_kategori');
         b.innerHTML = '';
         data.forEach(d => {
@@ -285,7 +308,7 @@ async function get_master_kategori() {
             </tr>`);
         })
     }).catch(err => {
-        console.error(err);
+        alert(err);
     });
 }
 
@@ -350,6 +373,146 @@ async function fn_simpan_kategori(btn) {
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
+}
+
+function fn_master_user() {
+    main.innerHTML = `
+        <div class="input-group" style="padding: 16px;">
+            <button class="btn btn-outline-secondary" onclick="get_master_user()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-outline-secondary" onclick="fn_undang_user()">
+                <i class="bi bi-envelope-plus"></i> Undang User
+            </button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Username</th>
+                <th>Nama Lengkap</th>
+                <th>Email</th>
+                <th>Level</th>
+                <th>Aktif</th>
+            </thead>
+            <tbody id="table_user"></tbody>
+        </table>`;
+    get_master_user();
+}
+
+async function get_master_user() {
+    await fetch(`${API}/user`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(data => {
+        if (data.ok == 0) {
+            alert(data.message);
+            return;
+        }
+        var b = document.getElementById('table_user');
+        b.innerHTML = '';
+        data.data.forEach(u => {
+            let aktif = (u.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
+            b.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td class='align-middle'>
+                    <button class='btn btn-secondary' onclick="fn_edit_user(${u.id})">
+                        <i class='bi bi-pencil'></i>
+                    </button>
+                </td>
+                <td class='align-middle'>${u.userName}</td>
+                <td class='align-middle'>${u.name}</td>
+                <td class='align-middle'>${u.email}</td>
+                <td class='align-middle'>${u.levelName}</td>
+                <td class='align-middle'>${aktif}</td>
+            </tr>`);
+        })
+    }).catch(err => {
+        alert(err);
+    });
+}
+
+async function fn_undang_user() {
+    const undang = await fetch_static('./static/undang_user.html');
+    const btn = `
+        <button type="button" class="btn btn-primary" onclick="fn_undang_kirim(this)">
+            <i class="bi bi-send"></i> Kirim Undangan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Undang User', undang, btn);
+    const opsi = await get_opsi_level();
+    document.getElementById('frm_undang_user').elements['levelId'].innerHTML = opsi;
+    blank_prg.style.display = 'none';
+}
+
+function fn_master_cafe() {
+    main.innerHTML = `
+        <div class="input-group" style="padding: 16px;">
+            <button class="btn btn-outline-secondary" onclick="get_master_cafe()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-outline-secondary" onclick="fn_edit_cafe()">
+                <i class="bi bi-plus"></i> Tambah Cafe
+            </button>
+        </div>
+        <div class="alert alert-light">Anda memiliki akses ke cafe di bawah ini.
+            Menambah cafe baru menjadikan Anda sebagai owner dari cafe tersebut.
+            Anda hanya bisa mengedit cafe yang mana Anda adalah ownernya.
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Kode</th>
+                <th>Nama Cafe</th>
+                <th>Nama Owner</th>
+                <th>Level Akses</th>
+                <th>Kota</th>
+                <th>Aktif</th>
+            </thead>
+            <tbody id="table_cafe"></tbody>
+        </table>`;
+    get_master_cafe();
+}
+
+async function get_master_cafe() {
+    await fetch(`${API}/cafe`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(data => {
+        if (data.ok == 0) {
+            alert(data.message);
+            return;
+        }
+        var b = document.getElementById('table_cafe');
+        b.innerHTML = '';
+        data.data.forEach(u => {
+            let aktif = (u.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
+            let edit = (u.ownerId == profile.id)? `<button class='btn btn-secondary' onclick="fn_edit_cafe('${u.id}')"><i class='bi bi-pencil'></i></button>` : "&nbsp;";
+            b.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td class='align-middle'>${edit}</td>
+                <td class='align-middle'>${u.id}</td>
+                <td class='align-middle'>${u.name}</td>
+                <td class='align-middle'>${u.ownerName}</td>
+                <td class='align-middle'>${u.levelName}</td>
+                <td class='align-middle'>${u.city}</td>
+                <td class='align-middle'>${aktif}</td>
+            </tr>`);
+        })
+    }).catch(err => {
+        alert(err);
+    });
 }
 
 async function fn_penjualan() {

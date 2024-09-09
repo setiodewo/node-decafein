@@ -24,13 +24,14 @@ create table user(
     pwd text,
     token text,
     active smallint default 1,
+    createdBy int,
     createdAt datetime,
     index(userName),
     index(email)
 );
 
 insert into user values
-(1, 'dewo', 'Emanuel Setio Dewo', 'dewo@swatizen.com', '+6281932509003', MD5('5w4t1z3n2024!'), '', 1, now());
+(1, 'dewo', 'Emanuel Setio Dewo', 'dewo@swatizen.com', '+6281932509003', MD5('5w4t1z3n2024!'), '', 1, 1, now());
 
 create table user_login (
     id bigint auto_increment primary key,
@@ -53,6 +54,8 @@ create table cafe (
     province varchar(127),
     country varchar(128),
     zipCode varchar(64),
+    lat varchar(128),
+    lng varchar(128),
     active smallint default 1,
     createdBy int,
     createdAt datetime,
@@ -64,7 +67,7 @@ create table cafe (
 );
 
 insert into cafe values
-('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', 1, 1, now());
+('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', '', '', 1, 1, now());
 
 create table user_cafe (
     id int auto_increment primary key,
