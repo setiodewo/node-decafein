@@ -109,8 +109,16 @@ async function fn_master_menu() {
                 Refresh
             </button>
             <button type="button" class="btn btn-outline-secondary" onclick="fn_edit_menu()">
-                <i class="bi bi-plus"></i>
+                <i class="bi bi-plus-lg"></i>
                 Menu
+            </button>
+            <button type="button" class="btn btn-outline-secondary">
+                <i class="bi bi-printer"></i>
+                Cetak
+            </button>
+            <button type="button" class="btn btn-outline-secondary">
+                <i class="bi bi-cloud-download"></i>
+                Download
             </button>
         </div>
     </div>

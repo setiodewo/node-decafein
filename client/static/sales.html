@@ -1,37 +1,43 @@
-<div class="row pt-2 d-flex flex-row flex-grow-1 bg-body-dark" style="height: 100%">
-    <div class="col">
+<div class="row pt-2 d-flex flex-row flex-grow-1" style="height: 100%">
+    <div class="col d-flex flex-column" style="height: 100%">
         <div class="row ms-1">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a id="sales_menu" 
                     data-func="fn_sales_menu" 
                     onclick="fn_sales_tab(this)"
-                    class="nav-link sales_tab active" 
+                    class="nav-link sales_tab active"
+                    title="Daftar Menu"
                     href="#">Menu</a>
                 </li>
                 <li class="nav-item">
                     <a id="sales_daftar" 
                     data-func="fn_sales_daftar"
                     onclick="fn_sales_tab(this)"
-                    class="nav-link sales_tab" 
+                    class="nav-link sales_tab"
+                    title="Daftar Penjualan"
                     href="#">Daftar Penjualan</a>
                 </li>
             </ul>
         </div>
         <div id="panel1" class="row ms-1 mb-3 mt-3"></div>
-        <div id="content1" class="row ms-1 overflow-auto"></div>
+        <div id="content1" class="overflow-auto flex-grow-1"></div>
     </div>
-    <div class="col-md-5 d-flex flex-column">
+    <div class="col-md-5 d-flex flex-column" style="height: 100%">
         <div class="card p-2">
             <div class="btn-toolbar justify-content-between">
                 <div class="btn-group">
                     <button type="button" 
                         class="btn btn-outline-secondary"
+                        title="Buat transaksi baru"
                         onclick="fn_new_trx()">
                         <i class="bi bi-plus"></i> Baru
                     </button>
-                    <button type="button" class="btn btn-outline-secondary">
+                    <button type="button" class="btn btn-outline-secondary" title="Pembayaran">
                         <i class="bi bi-credit-card"></i> Bayar
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" title="Hitung ulang">
+                        <i class="bi bi-calculator"></i>
                     </button>
                 </div>
                 <div class="btn-group">

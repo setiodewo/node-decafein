@@ -52,7 +52,7 @@ async function get_daftar_kategori(dv) {
                     id='btn_kategori_${k.id}' 
                     data-id="${k.id}"
                     onclick="fn_ganti_kategori(this)">
-                    <label class="btn btn-outline-secondary" for="btn_kategori_${k.id}">
+                    <label class="btn btn-outline-secondary" for="btn_kategori_${k.id}" title="Filter menu berdasarkan kategori">
                         <i class="${k.icon}"></i>
                         ${k.name}</label>
                 </input>`)
@@ -67,8 +67,9 @@ function fn_ganti_kategori(btn) {
     get_daftar_menu(content1);
 }
 
-async function get_daftar_menu(dv) {
-    dv.innerHTML = '';
+async function get_daftar_menu(dvc) {
+    dvc.innerHTML = `<div id="daftar_menu" class="d-flex flex-row overflow-auto flex-wrap" style="max-height: 100%"></div>`;
+    let dv = document.getElementById('daftar_menu');
     await fetch(`${API}/menu`, {
         method: 'GET',
         headers: {
@@ -83,7 +84,7 @@ async function get_daftar_menu(dv) {
             menu.data.forEach(m => {
                 if (m.active == 1)
                 dv.insertAdjacentHTML('beforeend', `
-                    <div class="col-4">
+                    <div class="col-4 pe-2">
                         <div class="card mb-3">
                             <!--
                             <div class="card-header">${m.categoryName}</div>
@@ -95,6 +96,7 @@ async function get_daftar_menu(dv) {
                                 ${Number(m.basePrice).toLocaleString()}
                                 <button 
                                     class="btn btn-sm btn-primary float-end"
+                                    title="Tambahkan"
                                     data-id="${m.id}"
                                     data-kat="${m.categoryName}"
                                     data-katid="${m.categoryId}"
