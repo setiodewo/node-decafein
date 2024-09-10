@@ -24,4 +24,50 @@ router.get('/', async(req, res) => {
     }
 });
 
+router.get('/edit/:id', async(req, res) => {
+    try {
+        const [r, f] = await db.query(`select *, 0 as md from cafe where id = ?`,
+            [req.params.id]);
+        res.send({ ok: r.length, data: r[0] });
+    } catch(err) {
+        res.status(500).send(err.message);
+    }
+});
+
+router.post('/simpan', async(req, res) => {
+    try {
+        if (req.body.md == 0) {
+            // Edit
+            const [r, f] = await db.query(`update cafe
+                set name = ?,
+                address = ?,
+                city = ?,
+                province = ?,
+                country = ?,
+                zipCode = ?,
+                lat = ?,
+                lng = ?,
+                active = ?
+                where id = ?`, [
+                    req.body.name,
+                    req.body.address,
+                    req.body.city,
+                    req.body.province,
+                    req.body.country,
+                    req.body.zipCode,
+                    req.body.lat == '' ? '0' : req.body.lat,
+                    req.body.lng == '' ? '0' : req.body.lng,
+                    req.body.active,
+                    req.body.id
+                ]);
+            res.send({ ok: r.affectedRows, msg: r.info });
+        } else {
+            // TODO: INSERT new cafe
+            res.send(500).send({ ok: 0, message: 'Belum diimplementasikan!'});
+        }
+    } catch(err) {
+        res.status(500).send({ ok: 0, message: err.message });
+    };
+});
+
 export default router;

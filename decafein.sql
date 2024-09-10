@@ -13,7 +13,7 @@ create table user_level (
 );
 
 insert into user_level values
-(1, 'ADMIN'), (2, 'USER');
+(1, 'ADMIN'), (2, 'KASIR');
 
 create table user(
     id int auto_increment primary key,

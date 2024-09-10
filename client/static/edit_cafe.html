@@ -1,0 +1,47 @@
+<form id="frm_edit_cafe" name="frm_edit_cafe">
+    <input type="hidden" id="md" value="1">
+    <div class="mb-3">
+        <label id="label_cafeId" for="id" class="form-label">Kode Cafe</label>
+        <input type="text" id="id" class="form-control" placeholder="Kode Unik Cafe" required>
+    </div>
+    <div class="mb-3">
+        <label for="name" class="form-label">Nama Cafe</label>
+        <input type="text" id="name" class="form-control" placeholder="Nama Cafe" required>
+    </div>
+    <div class="mb-3">
+        <label for="address" class="form-label">Alamat</label>
+        <textarea type="text" id="address" class="form-control" rows=3 placeholder="Alamat"></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="city" class="form-label">Kota</label>
+        <input type="text" id="city" class="form-control" placeholder="Kota" required>
+    </div>
+    <div class="mb-3">
+        <label for="province" class="form-label">Propinsi</label>
+        <input type="text" id="province" class="form-control" placeholder="Propinsi" required>
+    </div>
+    <div class="mb-3 row">
+        <div class="col">
+            <label for="country" class="form-label">Negara</label>
+            <input type="text" id="country" class="form-control" placeholder="Negara" required>
+        </div>
+        <div class="col">
+            <label for="zipCode" class="form-label">Kode Pos</label>
+            <input type="text" id="zipCode" class="form-control" placeholder="Kode Pos" required>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <div class="col">
+            <label for="lat" class="form-label">Latitude</label>
+            <input type="text" id="lat" class="form-control" placeholder="Latitude" required>
+        </div>
+        <div class="col">
+            <label for="lat" class="form-label">Longitude</label>
+            <input type="text" id="lng" class="form-control" placeholder="Longitude" required>
+        </div>
+    </div>
+    <div class="mb-3 form-check form-switch" style="margin-top: 16px;">
+        <input class="form-check-input" type="checkbox" role="switch" id="active">
+        <label class="form-check-label" for="active" style="margin-left: 8px;">Aktif?</label>
+    </div>
+</form>

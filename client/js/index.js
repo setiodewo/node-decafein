@@ -1,6 +1,6 @@
 // Author : Emanuel Setio Dewo, 07/09/2024
 
-const API = "http://localhost:4000";
+const API = "http://192.168.100.35:4000";
 let profile = {};
 let cafe = {};
 
@@ -20,7 +20,6 @@ window.addEventListener("load", async(ev) => {
     }
     profile = await JSON.parse(p);
     cafe = await JSON.parse(c);
-    console.log(cafe);
 
     // infoUserName
     const infoUserName = document.getElementById('infoUserName');
@@ -115,7 +114,7 @@ async function fn_master_menu() {
             </button>
         </div>
     </div>
-    <div id='mm_data'>`;
+    <div id='mm_data'></div>`;
     var opsi_kategori = document.getElementById('opsi_kategori');
     opsi_kategori.innerHTML = await get_opsi_kategori();
 }
@@ -515,6 +514,73 @@ async function get_master_cafe() {
     });
 }
 
-async function fn_penjualan() {
-    main.innerHTML = "Module penjualan";
+async function fn_edit_cafe(id) {
+    const editor = await fetch_static('./static/edit_cafe.html');
+    const btn = `
+        <button type="button" class="btn btn-primary" onclick="fn_simpan_cafe(this)">
+            <i class="bi bi-floppy"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Edit Cafe', editor, btn);
+
+    if (id == null) {
+        blank_dlg_title.innerHTML = "Tambah Cafe";
+        blank_prg.style.display = 'none';
+        document.getElementById('frm_edit_cafe').elements['id'].setAttribute('readonly', false);
+        document.getElementById('label_cafeId').innerHTML = "Kode Cafe (harus unik)";
+    } else {
+        document.getElementById('frm_edit_cafe').elements['id'].setAttribute('readonly', true);
+        document.getElementById('label_cafeId').innerHTML = "Kode Cafe (tidak dapat diubah)";
+        const data = await fetch(`${API}/cafe/edit/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            }
+        }).then(j => j.json()).then(d => {
+            populate_form('frm_edit_cafe', d.data);
+            if (d.data.active == 1) {
+                document.getElementById('active').checked = true;
+            } else {
+                document.getElementById('active').checked = false;
+            }
+        }).catch(err => {
+            alert(err.message);
+        });
+        blank_prg.style.display = 'none';
+    }
+}
+
+async function fn_simpan_cafe(btn) {
+    if (invalid_input('frm_edit_cafe', 'id', 'Masukkan kode cafe!')) return;
+    if (invalid_input('frm_edit_cafe', 'name', 'Masukkan nama cafe!')) return;
+    if (invalid_input('frm_edit_cafe', 'city', 'Masukkan kota!')) return;
+    if (invalid_input('frm_edit_cafe', 'province', 'Masukkan propinsi!')) return;
+    if (invalid_input('frm_edit_cafe', 'zipCode', 'Masukkan kode pos!')) return;
+
+    btn.style.display = 'none';
+    blank_prg.display = 'inline-block';
+    await fetch(`${API}/cafe/simpan`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify(serialize_form('frm_edit_cafe'))
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 1) {
+            blank_dlg.hide();
+            get_master_cafe();
+        } else {
+            alert(ret.message);
+        }
+    }).catch(err => {
+        alert(err.message);
+    });
+    btn.style.display = 'inline-block';
+    blank_prg.style.display = 'none';
 }
