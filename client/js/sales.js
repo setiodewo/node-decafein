@@ -129,6 +129,7 @@ async function fn_tambah_item(btn) {
         'basePrice' : btn.dataset.price,
         'COGS' : btn.dataset.cogs,
         'amount' : 1,
+        'discount': 0,
         'notes' : ''
     }
     const tombol = `
