@@ -1,14 +1,22 @@
 // Author : Emanuel Setio Dewo, 09/09/2024
 
 let active_kategori = 0;
+let sales_page = 0;
+let sale_tgl = '';
+let sale_cari = '';
+let sale_prg;
 
 async function fn_penjualan() {
     main.innerHTML = await fetch_static('./static/sales.html');
+    sale_prg = document.getElementById('sale_prg');
+    sale_prg.style.display = 'none';
     const init_tab = document.getElementById('sales_menu');
     init_tab.click();
+    init_sales_type();
 }
 
 async function fn_sales_tab(tab) {
+    // init tab
     let aktif = document.getElementsByClassName('sales_tab active');
     if (aktif.length == 0) {}
     else {
@@ -30,6 +38,38 @@ async function fn_sales_menu() {
     get_daftar_kategori(panel1);
 }
 
+async function init_sales_type() {
+    const tipe = document.getElementById('radio_saleType');
+    tipe.innerHTML = '';
+    await fetch(`${API}/sale/type`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => {
+        if (j.status == 401) {
+            throw j.statusText;
+        } else return j.json();
+    }).then(tp => {
+        tp.forEach(t => {
+            tipe.insertAdjacentHTML('beforeend', `
+                <input type='radio'
+                    class='btn-check'
+                    name='saleType'
+                    id='saleType_${t.id}'
+                    value='${t.id}'
+                    onclick="ganti_tipe(this)">
+                    <label class="btn btn-outline-secondary"
+                    for="saleType_${t.id}">
+                    ${t.name}</label>
+                </input>`)
+        })
+    })
+}
+
 async function get_daftar_kategori(dv) {
     dv.innerHTML = `<div class="btn-group" id="group_kategori"></div>`;
     const grp = document.getElementById('group_kategori');
@@ -41,15 +81,24 @@ async function get_daftar_kategori(dv) {
             'token' : profile.token,
             'cafe' : cafe.id
         }
-    }).then(j => j.json()).then(kat => {
+    })
+    .then(j => {
+        if (j.status == 401) {
+            throw "Sesi expired. Mungkin akun digunakan di komputer lain. Silakan logout & login lagi!";
+        } else {
+            return j.json();
+        }
+    })
+    .then(kat => {
         active_kategori = kat[0].id;
         kat.forEach(k => {
             if (k.active == 1)
             grp.insertAdjacentHTML('beforeend', `
                 <input type='radio' 
                     class='btn-check' 
-                    name='btn-categori' 
+                    name='btn-categori'
                     id='btn_kategori_${k.id}' 
+                    value='${k.id}'
                     data-id="${k.id}"
                     onclick="fn_ganti_kategori(this)">
                     <label class="btn btn-outline-secondary" for="btn_kategori_${k.id}" title="Filter menu berdasarkan kategori">
@@ -58,7 +107,9 @@ async function get_daftar_kategori(dv) {
                 </input>`)
         });
         document.getElementById(`btn_kategori_${active_kategori}`).click();
-    })
+    }).catch(err => {
+        alert(err);
+    });
 }
 
 function fn_ganti_kategori(btn) {
@@ -79,7 +130,15 @@ async function get_daftar_menu(dvc) {
             'cafe' : cafe.id,
             'kategori' : active_kategori
         }
-    }).then(j => j.json()).then(menu => {
+    })
+    .then(j => {
+        if (j.status == 401) {
+            throw "Sesi expired atau digunakan di komputer lain. Silakan logout & login lagi.";
+        } else {
+            return j.json();
+        }
+    })
+    .then(menu => {
         if (menu.ok > 0) {
             menu.data.forEach(m => {
                 if (m.active == 1)
@@ -116,6 +175,9 @@ async function get_daftar_menu(dvc) {
             dv.innerHTML = `Tidak ada menu`;
         }
     })
+    .catch(err => {
+        alert(err);
+    })
 }
 
 async function fn_tambah_item(btn) {
@@ -150,4 +212,199 @@ function change_amount(jml) {
     let j = (Number(amount.value) + jml) <= 0 ? 1 : Number(amount.value) + jml;
 
     amount.value = j;
+}
+
+function fn_new_trx() {
+    fetch(`${API}/sale/new`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => {
+        if (j.status == 401) {
+            throw 'Sesi expired. Mungkin akun Anda digunakan di komputer lain.';
+        } else {
+            return j.json();
+        }
+    }).then(neo => {
+        populate_form('frm_sale_hdr', neo.data);
+        populate_form('frm_sale_total', neo.data);
+        document.getElementById('frm_sale_hdr').elements['saleTo'].focus();
+    }).catch(err => {
+        alert(err);
+    });
+}
+
+function fn_edit_trx(id) {
+    fetch(`${API}/sale/edit/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => {
+        if (j.status == 401) {
+            throw 'Sesi expired. Mungkin akun Anda digunakan di komputer lain.';
+        } else {
+            return j.json();
+        }
+    }).then(edit => {
+        populate_form('frm_sale_hdr', edit.data);
+        populate_form('frm_sale_total', edit.data);
+    }).catch(err => {
+        alert(err);
+    })
+}
+
+async function ganti_tipe(btn) {
+    let id = document.getElementById('frm_sale_hdr').elements['id'].value;
+    if (id == null || id == '') return;
+
+    // Cek statusnya, krn selain 0, nilainya tdk bisa diubah
+    if (document.getElementById('frm_sale_hdr').elements['statusId'].value != 0) {
+        inp.value = inp.dataset.data;
+        return;
+    }
+
+    // set value
+    await fetch(`${API}/sale/field`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify({
+            'id' : id,
+            'field' : 'saleType',
+            'value' : btn.value
+        })
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 1) {}
+        else {
+            alert(ret.message);
+        }
+    }).catch(err => {
+        alert(err);
+    });
+}
+
+function focusin(inp) {
+    inp.dataset.data = inp.value;
+}
+
+async function focusout(inp) {
+    let id = document.getElementById('frm_sale_hdr').elements['id'].value;
+    if (id == null || id == '') return;
+
+    // Cek statusnya, krn selain 0, nilainya tdk bisa diubah
+    if (document.getElementById('frm_sale_hdr').elements['statusId'].value != 0) {
+        inp.value = inp.dataset.data;
+        return;
+    }
+
+    if (inp.value != '' && inp.value != inp.dataset.data) {
+        // set value
+        await fetch(`${API}/sale/field`, {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            },
+            body: JSON.stringify({
+                'id' : id,
+                'field' : inp.id,
+                'value' : inp.value
+            })
+        }).then(j => j.json()).then(ret => {
+            if (ret.ok == 1) {}
+            else {
+                alert(ret.message);
+            }
+        }).catch(err => {
+            alert(err);
+        });
+    }
+}
+
+async function fn_sales_daftar() {
+    const panel1 = document.getElementById('panel1');
+    panel1.innerHTML = `
+    <div class="row">
+        <div class="col-md-12">
+            <div class="input-group">
+                <span class="input-group-text">Filter</span>
+                <input type="date" id="filter_tanggal" class="form-control" onchange="get_sales_daftar()">
+                <span class="input-group-text">Cari Pembeli</span>
+                <input type="text" id="cari_pembeli" class="form-control">
+                <button type="button" class="btn btn-outline-secondary" onclick="get_sales_daftar()"><i class="bi-search"></i></button>
+                <button type="button" class="btn btn-outline-secondary" onclick="reset_sales_daftar()"><i class="bi-x-circle"></i></button>
+            </div>
+        </div>
+    </div>`;
+    get_sales_daftar();
+}
+
+function reset_sales_daftar() {
+    let cari_pembeli = document.getElementById('cari_pembeli');
+    cari_pembeli.value = '';
+    get_sales_daftar();
+}
+
+async function get_sales_daftar() {
+    var tgl = document.getElementById('filter_tanggal').value;
+    console.log('TANGGAL', tgl);
+    const content1 = document.getElementById('content1');
+    content1.innerHTML = `<table class='table'>
+        <tr>
+            <th class="col-md-1 bg-body-tertiary">Trx</th>
+            <th class="col-md-1 bg-body-tertiary">Jam</th>
+            <th class="col-md-2 bg-body-tertiary">Jenis</th>
+            <th class="bg-body-tertiary">Pembeli</th>
+            <th class="col-md-1 bg-body-tertiary">Total</th>
+            <th class="col-md-1 bg-body-tertiary">Status</th>
+            <th class="col-md-1 bg-body-tertiary"></th>
+        </tr>
+        <tbody id="body_sales_daftar"></tbody>
+        </table>`;
+
+    await fetch(`${API}/sale`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id,
+            'tgl' : tgl,
+            'page' : sales_page
+        }
+    }).then(j => j.json()).then(data => {
+        let daft = document.getElementById('body_sales_daftar');
+        if (data.ok > 0) {
+            data.data.forEach(d => {
+                daft.insertAdjacentHTML('beforeend', `
+                    <tr>
+                    <td class="align-middle">${d.id}</td>
+                    <td class="align-middle">${d.tgl}</td>
+                    <td class="align-middle">${d.typeName}</td>
+                    <td class="align-middle">${d.saleTo}</td>
+                    <td class="align-middle">${d.totalPaid}</td>
+                    <td class="align-middle">${d.statusName}</td>
+                    <td class="align-middle">
+                        <button type="button" class="btn btn-secondary" onclick="fn_edit_trx(${d.id})">
+                            <i class="bi-arrow-right"></i>
+                        </button>
+                    </td>
+                    </tr>`);
+            })
+        }
+    })
 }

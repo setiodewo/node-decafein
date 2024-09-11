@@ -1,31 +1,31 @@
 <form id="frm_add_trxitem" name="frm_add_trxitem">
     <input type="hidden" id="id">
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="name" class="col-md-3 col-form-label">Nama</label>
         <div class="col">
             <input type="text" id="name" class="form-control" readonly>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="description" class="col-md-3 col-form-label">Description</label>
         <div class="col">
             <textarea type="text" id="description" class="form-control" rows="3" readonly></textarea>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="categoryName" class="col-md-3 col-form-label">Kategori</label>
         <div class="col">
             <input type="text" id="categoryName" class="form-control" readonly>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="basePrice" class="col-md-3 col-form-label">Harga</label>
         <div class="col input-group">
             <span class="input-group-text" id="currency"></span>
             <input type="text" id="basePrice" class="form-control" readonly>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="amount" class="col-md-3 col-form-label">Jumlah</label>
         <div class="col input-group input-group-lg">
             <button class="btn btn-secondary" type="button" onclick="change_amount(-1)"><i class="bi-dash-lg"></i></button>
@@ -33,17 +33,17 @@
             <button class="btn btn-secondary" type="button" onclick="change_amount(1)"><i class="bi-plus-lg"></i></button>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-2">
         <label for="discount" class="col-md-3 col-form-label">Diskon</label>
         <div class="col input-group">
             <input type="number" id="discount" class="form-control">
             <span class="input-group-text">%</span>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row">
         <label for="notes" class="col-md-3 col-form-label">Catatan</label>
         <div class="col">
-            <textarea type="text" id="notes" class="form-control" rows="3"></textarea>
+            <textarea type="text" id="notes" class="form-control" rows="2"></textarea>
         </div>
     </div>
 </form>

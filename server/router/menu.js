@@ -29,7 +29,7 @@ router.get('/', async(req, res) => {
 
 router.get('/kategori', async(req, res) => {
     try {
-        const [r, f] = await db.query(`select id, name, icon, active from menu_category where cafeId=? order by name`,
+        const [r, f] = await db.query(`select id, name, icon, active from menu_category where cafeId=? order by id`,
             [req.headers.cafe]);
         res.send(r);
     } catch(err) {

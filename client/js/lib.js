@@ -38,8 +38,8 @@ function populate_form(id, data) {
         if (frm.elements[nilai] === undefined) {}
         else frm.elements[nilai].value = data[nilai];
     });
-    frm.elements['name'].value = data['name'];
-    console.log('name', frm.elements['name'].value);
+    //frm.elements['name'].value = data['name'];
+    //console.log('name', frm.elements['name'].value);
 }
 
 function serialize_form(id) {
@@ -48,7 +48,8 @@ function serialize_form(id) {
     for (var i = 0; i < frm.elements.length; i++) {
         if (frm.elements[i].type == 'checkbox') {
             par[frm.elements[i].id] = frm.elements[i].checked === true? 1 : 0;
-        } else {
+        } 
+        else {
             par[frm.elements[i].id] = frm.elements[i].value;
         }
     }

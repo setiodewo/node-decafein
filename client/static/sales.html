@@ -1,6 +1,6 @@
-<div class="row pt-2 d-flex flex-row flex-grow-1" style="height: 100%">
+<div class="row d-flex flex-row flex-grow-1" style="height: 100%">
     <div class="col d-flex flex-column" style="height: 100%">
-        <div class="row ms-1">
+        <div class="row ms-1 mt-2">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a id="sales_menu" 
@@ -23,15 +23,16 @@
         <div id="panel1" class="row mb-3 mt-3"></div>
         <div id="content1" class="overflow-auto flex-grow-1"></div>
     </div>
-    <div class="col-md-5 d-flex flex-column" style="height: 100%">
-        <div class="card p-2">
-            <div class="btn-toolbar justify-content-between">
+
+    <div class="col-md-5 d-flex flex-column border-start" style="height: 100%">
+        <div class="row bg-body-tertiary pt-2 pb-2">
+            <div class="btn-toolbar align-middle justify-content-between">
                 <div class="btn-group">
                     <button type="button" 
                         class="btn btn-outline-secondary"
                         title="Buat transaksi baru"
                         onclick="fn_new_trx()">
-                        <i class="bi bi-plus"></i> Baru
+                        <i class="bi bi-plus-lg"></i> Baru
                     </button>
                     <button type="button" class="btn btn-outline-secondary" title="Pembayaran">
                         <i class="bi bi-credit-card"></i> Bayar
@@ -40,6 +41,9 @@
                         <i class="bi bi-calculator"></i>
                     </button>
                 </div>
+                <div id="sale_prg" class="spinner-border text-primary" role="status" style="margin-right: 16px;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-danger">
                         <i class="bi bi-trash"></i>
@@ -47,8 +51,79 @@
                 </div>
             </div>
         </div>
-        <div id="trx_item" class="flex-grow-1 overflow-auto">transaksi</div>
-        <div id="trx_total" class="card p-2">total</div>
+        <div class="pt-3 pb-2 border-bottom">
+            <form id="frm_sale_hdr" name="frm_sales_hdr">
+                <input type="hidden" id="createdBy">
+                <input type="hidden" id="statusId">
+                <input type="hidden" id="totalPaid">
+                <div class="row mb-2">
+                    <label for="id" class="col-md-2 col-form-label">No.Trx</label>
+                    <div class="col-md-4">
+                        <input type="text" id="id" class="form-control bg-body-tertiary" readonly>
+                    </div>
+                    <label for="saleDate" class="col-md-2 col-form-label">Tanggal</label>
+                    <div class="col-md-4">
+                        <input type="text" id="saleDate" class="form-control bg-body-tertiary" readonly>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label for="saleTo" class="col-md-2 col-form-label">Pembeli</label>
+                    <div class="col-6">
+                        <input type="text" id="saleTo" class="form-control" onfocusin="focusin(this)" onfocusout="focusout(this)">
+                    </div>
+                    <div class="col-4">
+                        <input type="text" id="statusName" class="form-control bg-body-tertiary" readonly>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label for="phoneNum" class="col-md-2 col-form-label">Telepon</label>
+                    <div class="col-md-4">
+                        <input type="text" id="phoneNum" class="form-control" onfocusin="focusin(this)" onfocusout="focusout(this)">
+                    </div>
+                    <label for="tableId" class="col-md-2 col-form-label">Meja</label>
+                    <div class="col-md-4">
+                        <input type="text" id="tableId" class="form-control" onfocusin="focusin(this)" onfocusout="focusout(this)">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label for="saleType" class="col-md-2 col-form-label">Jenis</label>
+                    <div id="radio_saleType" class="col btn-group"></div>
+                </div>
+            </form>
+        </div>
+        <div id="sale_item" class="flex-grow-1 overflow-auto">
+            <table class="table">
+                <tr>
+                    <th>Item</th>
+                    <th class="col-md-2">Hrg</th>
+                    <th class="col-md-1">Jml</th>
+                    <th class="col-md-1">Diskon</th>
+                </tr>
+            </table>
+        </div>
+
+        <div id="sale_total" class="row bg-body-tertiary ps-1 pe-1">
+            <form id="frm_sale_total">
+                <div class="row">
+                    <div class="col-3 p-1">
+                        <label for="totalAmount" class="col-form-label">Jumlah</label>
+                        <input type="number" id="totalAmount" class="form-control" readonly>
+                    </div>
+                    <div class="col-3 p-1">
+                        <label for="totalDiscount" class="col-form-label">Diskon</label>
+                        <input type="number" id="totalDiscount" class="form-control" readonly>
+                    </div>
+                    <div class="col-3 p-1">
+                        <label for="totalTax" class="col-form-label">Pajak</label>
+                        <input type="number" id="totalTax" class="form-control" readonly>
+                    </div>
+                    <div class="col-3 p-1">
+                        <label for="grandTotal" class="col-form-label">Total</label>
+                        <input type="number" id="grandTotal" class="form-control" readonly>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>

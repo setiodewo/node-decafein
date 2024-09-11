@@ -127,3 +127,67 @@ insert into menu values
 (1, 'DECAFEIN', 'Hot Cappuccino', 2, 'Cappuccino Panas', 'IDR', 20000.0, 15000.0, 1, 1, now()),
 (2, 'DECAFEIN', 'Hot Espresso', 2, 'Espresso 150ml', 'IDR', 17500.0, 14000.0, 1, 1, now()),
 (3, 'DECAFEIN', 'Chocolate Croissant', 3, 'Chocolate Croissant', 'IDR', 15000.0, 12500.0, 1, 1, now());
+
+create table sale_status (
+    id int primary key,
+    name varchar(64)
+);
+
+insert into sale_status values
+(-1, 'DELETED'), (0, 'OPEN'), (1, 'PAID');
+
+create table sale_type (
+    id int primary key,
+    name varchar(64)
+);
+
+insert into sale_type values
+(1, 'Dine in'), (2, 'Take away'), (3, 'Delivery');
+
+create table sale_hdr (
+    id bigint auto_increment primary key,
+    cafeId varchar(16),
+    saleDate datetime,
+    saleType smallint default 1,
+    saleTo varchar(128),
+    phoneNum varchar(64),
+    tableId varchar(16),
+    totalAmount decimal(10, 2),
+    totalDiscount decimal(5, 2),
+    totalTax decimal(10, 2),
+    totalPaid decimal(10, 2),
+    statusId smallint default 0,
+    notes text,
+    createdBy int,
+    index(cafeId),
+    index(saleDate),
+    index(saleType),
+    index(saleTo),
+    index(phoneNum),
+    index(tableId),
+    index(statusId),
+    index(createdBy)
+);
+
+create table sales_item (
+    id bigint auto_increment primary key,
+    saleId bigint,
+    itemId int,
+    categoryId int,
+    currency varchar(16),
+    basePrice decimal(10, 2),
+    COGS decimal(10, 2),
+    quantity int,
+    discount int,
+    amountDiscount decimal(10, 2),
+    tax decimal(5, 2),
+    amountTax decimal(10, 2),
+    notes text,
+    statusId smallint default 0,
+    createdBy int,
+    createdAt datetime,
+    index(saleId),
+    index(itemId),
+    index(categoryId),
+    index(createdBy)
+);

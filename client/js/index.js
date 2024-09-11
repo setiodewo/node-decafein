@@ -1,6 +1,6 @@
 // Author : Emanuel Setio Dewo, 07/09/2024
 
-const API = "http://192.168.100.35:4000";
+const API = "http://192.168.100.40:4000";
 let profile = {};
 let cafe = {};
 
@@ -71,7 +71,7 @@ async function get_opsi_kategori() {
         });
         return o;
     }).catch(err => {
-        console.error(err.message);
+        console.error(err);
     })
 }
 
@@ -90,7 +90,7 @@ async function get_opsi_level() {
         });
         return o;
     }).catch(err => {
-        console.error(err.message);
+        console.error(err);
     })
 }
 
@@ -159,7 +159,7 @@ async function fn_edit_menu(menuId) {
                 document.getElementById('active').checked = false;
             }
         }).catch(err => {
-            alert(err.message);
+            alert(err);
         });
         blank_prg.style.display = 'none';
     }
@@ -192,7 +192,7 @@ async function fn_simpan_menu(btn) {
             alert(ret.message);
         }
     }).catch(err => {
-        alert(err.message);
+        alert(err);
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
@@ -216,7 +216,7 @@ async function get_master_menu() {
         return render_master_menu(res);
     })
     .catch(err => {
-        return err.message;
+        return err;
     });
 }
 
@@ -348,7 +348,7 @@ async function fn_edit_kategori(id) {
                 document.getElementById('active').checked = false;
             }
         }).catch(err => {
-            alert(err.message);
+            alert(err);
         });
         blank_prg.style.display = 'none';
     }
@@ -376,7 +376,7 @@ async function fn_simpan_kategori(btn) {
             alert(ret.message);
         }
     }).catch(err => {
-        alert(err.message);
+        alert(err);
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
@@ -555,7 +555,7 @@ async function fn_edit_cafe(id) {
                 document.getElementById('active').checked = false;
             }
         }).catch(err => {
-            alert(err.message);
+            alert(err);
         });
         blank_prg.style.display = 'none';
     }
@@ -587,7 +587,7 @@ async function fn_simpan_cafe(btn) {
             alert(ret.message);
         }
     }).catch(err => {
-        alert(err.message);
+        alert(err);
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
