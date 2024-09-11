@@ -73,6 +73,7 @@ async function init_sales_type() {
 async function get_daftar_kategori(dv) {
     dv.innerHTML = `<div class="btn-group" id="group_kategori"></div>`;
     const grp = document.getElementById('group_kategori');
+    sale_prg.style.display = 'inline-block';
     await fetch(`${API}/menu/kategori`, {
         method: 'GET',
         headers: {
@@ -110,6 +111,7 @@ async function get_daftar_kategori(dv) {
     }).catch(err => {
         alert(err);
     });
+    sale_prg.style.display = 'none';
 }
 
 function fn_ganti_kategori(btn) {
@@ -121,6 +123,7 @@ function fn_ganti_kategori(btn) {
 async function get_daftar_menu(dvc) {
     dvc.innerHTML = `<div id="daftar_menu" class="d-flex flex-row overflow-auto flex-wrap" style="max-height: 100%"></div>`;
     let dv = document.getElementById('daftar_menu');
+    sale_prg.style.display = 'inline-block';
     await fetch(`${API}/menu`, {
         method: 'GET',
         headers: {
@@ -177,12 +180,13 @@ async function get_daftar_menu(dvc) {
     })
     .catch(err => {
         alert(err);
-    })
+    });
+    sale_prg.style.display = 'none';
 }
 
 async function fn_tambah_item(btn) {
     const par = {
-        'id' : btn.dataset.id,
+        'itemId' : btn.dataset.id,
         'name' : btn.dataset.name,
         "description" : btn.dataset.desc,
         'categoryName' : btn.dataset.kat,
@@ -190,7 +194,7 @@ async function fn_tambah_item(btn) {
         'currency': btn.dataset.currency,
         'basePrice' : btn.dataset.price,
         'COGS' : btn.dataset.cogs,
-        'amount' : 1,
+        'quantity' : 1,
         'discount': 0,
         'notes' : ''
     }
@@ -202,9 +206,102 @@ async function fn_tambah_item(btn) {
     const frm = await fetch_static('./static/add_trxitem.html');
     show_modal('Tambah Item', frm, tombol);
     populate_form('frm_add_trxitem', par);
-    document.getElementById('currency').innerHTML = par.currency;
+    document.getElementById('currencyName').innerHTML = par.currency;
 
     blank_prg.style.display = 'none';
+}
+
+async function fn_tambahkan_item(btn) {
+    var par = serialize_form('frm_add_trxitem');
+    const hdr = document.getElementById('frm_sale_hdr');
+    const saleId = hdr.elements['id'].value;
+    const statusId = hdr.elements['statusId'].value;
+
+    if (saleId == null || saleId == '') {
+        alert('Tidak ada transaksi aktif di panel kanan!');
+        return;
+    }
+    if (statusId != 0) {
+        alert('Status transaksi sudah dibayar/dihapus. Tidak dapat ditambahkan item baru!');
+        return;
+    }
+
+    sale_prg.style.display = 'inline-block';
+    await fetch(`${API}/sale/additem/${saleId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify(par)
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 0) {
+            alert(ret.message);
+        } else {
+            par['id'] = ret.id;
+            var tbl = document.getElementById('body_trxitem');
+            render_trxitem(tbl, par);
+            recalculate_sale(saleId);
+            blank_dlg.hide();
+        }
+    }).catch(err => {
+        alert(err);
+    });
+    sale_prg.style.display = 'none';
+}
+
+function render_trxitem(tbl, par) {
+    let prc = Number(par.basePrice).toLocaleString();
+    tbl.insertAdjacentHTML('beforeend', `
+        <tr>
+            <td class='align-middle'>${par.name}</td>
+            <td class='align-middle'>${prc}</td>
+            <td class='align-middle'>${par.quantity}</td>
+            <td class='align-middle'>${par.discount}%</td>
+        </tr>`);
+}
+
+function fn_recalculate_sale() {
+    const hdr = document.getElementById('frm_sale_hdr');
+    const saleId = hdr.elements['id'].value;
+    const statusId = hdr.elements['statusId'].value;
+
+    if (saleId == null || saleId == '') {
+        alert('Tidak ada transaksi aktif!');
+        return;
+    }
+    if (statusId != 0) {
+        alert('Status transaksi sudah dibayar/dihapus. Tidak dapat ditambahkan item baru!');
+        return;
+    }
+    recalculate_sale(saleId);
+}
+
+async function recalculate_sale(id) {
+    await fetch(`${API}/sale/recalculate/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 0) {}
+        else {
+            let datanya = {
+                totalAmount : Number(ret.data.totalAmount).toLocaleString(),
+                totalDiscount : Number(ret.data.totalDiscount).toLocaleString(),
+                grandTotal : Number(ret.data.grandTotal).toLocaleString()
+            }
+            populate_form('frm_sale_total', datanya);
+            console.log('total', datanya);
+        }
+    }).catch(err => {
+        alert(err);
+    })
 }
 
 function change_amount(jml) {
@@ -214,8 +311,9 @@ function change_amount(jml) {
     amount.value = j;
 }
 
-function fn_new_trx() {
-    fetch(`${API}/sale/new`, {
+async function fn_new_trx() {
+    sale_prg.style.display = 'inline-block';
+    await fetch(`${API}/sale/new`, {
         method: 'GET',
         headers: {
             'Content-Type' : 'application/json',
@@ -236,10 +334,12 @@ function fn_new_trx() {
     }).catch(err => {
         alert(err);
     });
+    sale_prg.style.display = 'none';
 }
 
-function fn_edit_trx(id) {
-    fetch(`${API}/sale/edit/${id}`, {
+async function fn_edit_trx(id) {
+    sale_prg.style.display = 'inline-block';
+    await fetch(`${API}/sale/edit/${id}`, {
         method: 'GET',
         headers: {
             'Content-Type' : 'application/json',
@@ -256,9 +356,33 @@ function fn_edit_trx(id) {
     }).then(edit => {
         populate_form('frm_sale_hdr', edit.data);
         populate_form('frm_sale_total', edit.data);
+        daftar_trxitem(id);
     }).catch(err => {
         alert(err);
-    })
+    });
+    sale_prg.style.display = 'none';
+}
+
+async function daftar_trxitem(id) {
+    await fetch(`${API}/sale/daftaritem/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(daftar => {
+        var tbl = document.getElementById('body_trxitem');
+        tbl.innerHTML = '';
+        if (daftar.ok > 0) {
+            daftar.data.forEach(d => {
+                render_trxitem(tbl, d);
+            })
+        }
+    }).catch(err => {
+        alert(err);
+    });
 }
 
 async function ganti_tipe(btn) {
@@ -272,6 +396,7 @@ async function ganti_tipe(btn) {
     }
 
     // set value
+    sale_prg.style.display = 'inline-block';
     await fetch(`${API}/sale/field`, {
         method: 'POST',
         headers: {
@@ -293,6 +418,7 @@ async function ganti_tipe(btn) {
     }).catch(err => {
         alert(err);
     });
+    sale_prg.style.display = 'none';
 }
 
 function focusin(inp) {
@@ -311,6 +437,7 @@ async function focusout(inp) {
 
     if (inp.value != '' && inp.value != inp.dataset.data) {
         // set value
+        sale_prg.style.display = 'inline-block';
         await fetch(`${API}/sale/field`, {
             method: 'POST',
             headers: {
@@ -332,6 +459,7 @@ async function focusout(inp) {
         }).catch(err => {
             alert(err);
         });
+        sale_prg.style.display = 'none';
     }
 }
 
@@ -361,7 +489,6 @@ function reset_sales_daftar() {
 
 async function get_sales_daftar() {
     var tgl = document.getElementById('filter_tanggal').value;
-    console.log('TANGGAL', tgl);
     const content1 = document.getElementById('content1');
     content1.innerHTML = `<table class='table'>
         <tr>
@@ -376,6 +503,7 @@ async function get_sales_daftar() {
         <tbody id="body_sales_daftar"></tbody>
         </table>`;
 
+    sale_prg.style.display = 'inline-block';
     await fetch(`${API}/sale`, {
         method: 'GET',
         headers: {
@@ -406,5 +534,6 @@ async function get_sales_daftar() {
                     </tr>`);
             })
         }
-    })
+    });
+    sale_prg.style.display = 'none';
 }

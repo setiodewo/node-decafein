@@ -37,7 +37,7 @@
                     <button type="button" class="btn btn-outline-secondary" title="Pembayaran">
                         <i class="bi bi-credit-card"></i> Bayar
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" title="Hitung ulang">
+                    <button type="button" class="btn btn-outline-secondary" title="Hitung ulang" onclick="fn_recalculate_sale()">
                         <i class="bi bi-calculator"></i>
                     </button>
                 </div>
@@ -99,27 +99,30 @@
                     <th class="col-md-1">Jml</th>
                     <th class="col-md-1">Diskon</th>
                 </tr>
+                <tbody id="body_trxitem"></tbody>
             </table>
         </div>
 
         <div id="sale_total" class="row bg-body-tertiary ps-1 pe-1">
             <form id="frm_sale_total">
                 <div class="row">
-                    <div class="col-3 p-1">
+                    <div class="col-4 p-1">
                         <label for="totalAmount" class="col-form-label">Jumlah</label>
-                        <input type="number" id="totalAmount" class="form-control" readonly>
+                        <input type="text" id="totalAmount" class="form-control text-center" readonly>
                     </div>
-                    <div class="col-3 p-1">
+                    <div class="col-4 p-1">
                         <label for="totalDiscount" class="col-form-label">Diskon</label>
-                        <input type="number" id="totalDiscount" class="form-control" readonly>
+                        <input type="text" id="totalDiscount" class="form-control text-center" readonly>
                     </div>
+                    <!--
                     <div class="col-3 p-1">
                         <label for="totalTax" class="col-form-label">Pajak</label>
                         <input type="number" id="totalTax" class="form-control" readonly>
                     </div>
-                    <div class="col-3 p-1">
+                    -->
+                    <div class="col-4 p-1">
                         <label for="grandTotal" class="col-form-label">Total</label>
-                        <input type="number" id="grandTotal" class="form-control" readonly>
+                        <input type="text" id="grandTotal" class="form-control text-center" readonly>
                     </div>
                 </div>
             </form>

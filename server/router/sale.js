@@ -61,13 +61,93 @@ router.get('/new', async(req, res) => {
 router.get('/edit/:id', async(req, res) => {
     const [r, f] = await db.query(`select h.id, h.cafeId, date_format(h.saleDate, '%d/%m/%Y %H:%i') as saleDate,
         h.saleType, h.saleTo, h.phoneNum, h.tableId,
-        h.totalAmount, h.totalDiscount, h.totalTax, h.totalPaid, h.statusId,
+        format(h.totalAmount, 0) as totalAmount,
+        format(h.totalDiscount, 0) as totalDiscount,
+        format(h.totalAmount - h.totalDiscount, 0) as grandTotal,
+        h.totalTax, h.totalPaid, h.statusId,
         h.notes, h.createdBy
         from sale_hdr h
         where h.id = ? and h.cafeId = ?`, [
             req.params.id, req.headers.cafe
         ]);
     res.send({ ok: r.length, data: r[0] });
+});
+
+router .get('/daftaritem/:saleId', async(req, res) => {
+    const [r, f] = await db.query(`select si.*, m.name
+        from sale_item si
+        left outer join menu m on m.id = si.itemId
+        where si.saleId = ?`, [req.params.saleId]);
+    res.send({ ok: r.length, data: r, message: r.info });
+});
+
+router.post('/additem/:saleId', async(req, res) => {
+    var amountDiscount = 0;
+    if (req.body.discount > 0) {
+        amountDiscount = req.body.basePrice - (req.body.basePrice / 100);
+    }
+    try {
+        const [r, f] = await db.query(`insert into sale_item
+            set saleId = ?,
+            itemId = ?,
+            categoryId = ?,
+            currency = ?,
+            basePrice = ?,
+            COGS = ?,
+            quantity = ?,
+            discount = ?,
+            amountDiscount = ?,
+            tax = ?,
+            amountTax = ?,
+            notes = ?,
+            statusId = 0,
+            createdBy = ?,
+            createdAt = now()`, [
+                req.params.saleId,
+                req.body.itemId,
+                req.body.categoryId,
+                req.body.currency,
+                req.body.basePrice,
+                req.body.COGS,
+                req.body.quantity,
+                req.body.discount,
+                amountDiscount,
+                0,
+                0,
+                req.body.notes,
+                req.headers.id
+            ]);
+        // TODO: hitung total
+        res.send({ ok: r.affectedRows, id: r.insertId, message: r.info });
+    } catch(err) {
+        res.status(500).send(err);;
+    };
+});
+
+router.get('/recalculate/:saleId', async(req, res) => {
+    try {
+        const [r, f] = await db.query(`select sum(quantity * basePrice) as totalAmount,
+            sum(quantity * (basePrice * discount / 100)) as totalDiscount
+            from sale_item
+            where saleId = ?`, [ req.params.saleId ]);
+        if (r.length > 0) {
+            // tuliskan
+            const [r1, f1] = await db.query(`update sale_hdr
+                set totalAmount = ?,
+                totalDiscount = ?
+                where id = ?`, [ r[0].totalAmount, Number(r[0].totalDiscount).toFixed(2), req.params.saleId ]);
+            res.send({ ok : r[0].length, data: { 
+                totalAmount: r[0].totalAmount, 
+                totalDiscount: r[0].totalDiscount,
+                grandTotal: r[0].totalAmount - r[0].totalDiscount,
+                message: 'recalculate'
+            } });
+        } else {
+            res.send({ ok: 1, data: { totalAmount: 0, totalDiscount: 0, grandTotal: 0 }});
+        }
+    } catch(err) {
+        res.status(500).send({ok: 0, message: err, data: { totalAmout: 0, totalDiscount: 0, grandTotal : 0 }});
+    };
 })
 
 router.post('/field', async(req, res) => {

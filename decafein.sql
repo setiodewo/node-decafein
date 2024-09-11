@@ -153,7 +153,7 @@ create table sale_hdr (
     phoneNum varchar(64),
     tableId varchar(16),
     totalAmount decimal(10, 2),
-    totalDiscount decimal(5, 2),
+    totalDiscount decimal(10, 2),
     totalTax decimal(10, 2),
     totalPaid decimal(10, 2),
     statusId smallint default 0,
@@ -169,7 +169,7 @@ create table sale_hdr (
     index(createdBy)
 );
 
-create table sales_item (
+create table sale_item (
     id bigint auto_increment primary key,
     saleId bigint,
     itemId int,
@@ -191,3 +191,8 @@ create table sales_item (
     index(categoryId),
     index(createdBy)
 );
+
+select sum(quantity * basePrice) as totalAmount,
+sum(quantity * (basePrice * discount / 100)) as totalDiscount
+from sale_item
+where saleId = 1;
