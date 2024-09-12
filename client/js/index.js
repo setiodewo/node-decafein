@@ -97,7 +97,7 @@ async function get_opsi_level() {
 async function fn_master_menu() {
     main.innerHTML = `
     <div id='mm_panel' class="btn-toolbar" style="padding: 16px;">
-        <div class="row col-sm-4">
+        <div class="row">
             <label for="opsi_kategori" class="col-form-label col-sm-4">Kategori</label>
             <div class="col">
                 <select id="opsi_kategori" class="form-select" onchange="get_master_menu()"></select>

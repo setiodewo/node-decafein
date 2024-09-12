@@ -146,7 +146,7 @@ async function get_daftar_menu(dvc) {
             menu.data.forEach(m => {
                 if (m.active == 1)
                 dv.insertAdjacentHTML('beforeend', `
-                    <div class="col-4 pe-2">
+                    <div class="pe-2" style="width:200px">
                         <div class="card mb-3">
                             <!--
                             <div class="card-header">${m.categoryName}</div>
@@ -254,13 +254,42 @@ async function fn_tambahkan_item(btn) {
 
 function render_trxitem(tbl, par) {
     let prc = Number(par.basePrice).toLocaleString();
+    let stt = document.getElementById('frm_sale_hdr').elements['statusId'];
+    let del = (stt.value == 0)? `
+        <button class="btn btn-outline-danger" onclick="fn_delete_item(${par.saleId}, ${par.id})">
+            <i class="bi-trash"></i>
+        </button>` : '';
     tbl.insertAdjacentHTML('beforeend', `
-        <tr>
+        <tr id="trxid_${par.id}">
             <td class='align-middle'>${par.name}</td>
             <td class='align-middle'>${prc}</td>
-            <td class='align-middle'>${par.quantity}</td>
-            <td class='align-middle'>${par.discount}%</td>
+            <td class='align-middle text-center'>${par.quantity}</td>
+            <td class='align-middle text-center'>${par.discount}%</td>
+            <td class='align-middle'>${del}</td>
         </tr>`);
+}
+
+async function fn_delete_item(saleId, trxId) {
+    if (confirm("Anda yakin mau menghapus item ini?")) {
+        sale_prg.style.display = 'inline-block';
+        await fetch(`${API}/sale/delitem`, {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            },
+            body: JSON.stringify({ 'saleId': saleId, 'trxId': trxId })
+        }).then(j => j.json()).then(ret => {
+            if (ret.ok == 0) {}
+            else {
+                document.getElementById(`trxid_${trxId}`).remove();
+                fn_recalculate_sale();
+            }
+        })
+        sale_prg.style.display = 'none';
+    }
 }
 
 function fn_recalculate_sale() {
@@ -305,7 +334,7 @@ async function recalculate_sale(id) {
 }
 
 function change_amount(jml) {
-    let amount = document.getElementById('frm_add_trxitem').elements['amount'];
+    let amount = document.getElementById('frm_add_trxitem').elements['quantity'];
     let j = (Number(amount.value) + jml) <= 0 ? 1 : Number(amount.value) + jml;
 
     amount.value = j;
@@ -313,6 +342,8 @@ function change_amount(jml) {
 
 async function fn_new_trx() {
     sale_prg.style.display = 'inline-block';
+    var tbl = document.getElementById('body_trxitem');
+    tbl.innerHTML = '';
     await fetch(`${API}/sale/new`, {
         method: 'GET',
         headers: {
@@ -466,29 +497,28 @@ async function focusout(inp) {
 async function fn_sales_daftar() {
     const panel1 = document.getElementById('panel1');
     panel1.innerHTML = `
-    <div class="row">
-        <div class="col-md-12">
-            <div class="input-group">
-                <span class="input-group-text">Filter</span>
-                <input type="date" id="filter_tanggal" class="form-control" onchange="get_sales_daftar()">
-                <span class="input-group-text">Cari Pembeli</span>
-                <input type="text" id="cari_pembeli" class="form-control">
-                <button type="button" class="btn btn-outline-secondary" onclick="get_sales_daftar()"><i class="bi-search"></i></button>
-                <button type="button" class="btn btn-outline-secondary" onclick="reset_sales_daftar()"><i class="bi-x-circle"></i></button>
-            </div>
-        </div>
-    </div>`;
+        <div class="input-group" style="max-width: 600px;">
+            <span class="input-group-text">Filter</span>
+            <input type="date" id="filter_tanggal" class="form-control" onchange="get_sales_daftar()">
+            <span class="input-group-text">Cari Pembeli</span>
+            <input type="text" id="cari_pembeli" class="form-control">
+            <button type="button" class="btn btn-outline-secondary" onclick="get_sales_daftar()"><i class="bi-search"></i></button>
+            <button type="button" class="btn btn-outline-secondary" onclick="reset_sales_daftar()"><i class="bi-x-circle"></i></button>
+        </div>`;
+    if (sale_tgl != '') document.getElementById('filter_tanggal').value = sale_tgl;
+    if (sale_cari != '') document.getElementById('cari_pembeli').value = sale_cari;
     get_sales_daftar();
 }
 
 function reset_sales_daftar() {
-    let cari_pembeli = document.getElementById('cari_pembeli');
-    cari_pembeli.value = '';
+    document.getElementById('filter_tanggal').value = '';
+    document.getElementById('cari_pembeli').value = '';
     get_sales_daftar();
 }
 
 async function get_sales_daftar() {
-    var tgl = document.getElementById('filter_tanggal').value;
+    sale_tgl = document.getElementById('filter_tanggal').value;
+    sale_cari = document.getElementById('cari_pembeli').value;
     const content1 = document.getElementById('content1');
     content1.innerHTML = `<table class='table'>
         <tr>
@@ -511,20 +541,22 @@ async function get_sales_daftar() {
             'id' : profile.id,
             'token' : profile.token,
             'cafe' : cafe.id,
-            'tgl' : tgl,
+            'tgl' : sale_tgl,
+            'cari' : sale_cari,
             'page' : sales_page
         }
     }).then(j => j.json()).then(data => {
         let daft = document.getElementById('body_sales_daftar');
         if (data.ok > 0) {
             data.data.forEach(d => {
+                let grandTotal = Number(d.grandTotal).toLocaleString();
                 daft.insertAdjacentHTML('beforeend', `
                     <tr>
                     <td class="align-middle">${d.id}</td>
                     <td class="align-middle">${d.tgl}</td>
                     <td class="align-middle">${d.typeName}</td>
                     <td class="align-middle">${d.saleTo}</td>
-                    <td class="align-middle">${d.totalPaid}</td>
+                    <td class="align-middle text-end">${grandTotal}</td>
                     <td class="align-middle">${d.statusName}</td>
                     <td class="align-middle">
                         <button type="button" class="btn btn-secondary" onclick="fn_edit_trx(${d.id})">

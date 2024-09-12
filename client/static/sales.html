@@ -20,11 +20,11 @@
                 </li>
             </ul>
         </div>
-        <div id="panel1" class="row mb-3 mt-3"></div>
+        <div id="panel1" class="mb-3 mt-3"></div>
         <div id="content1" class="overflow-auto flex-grow-1"></div>
     </div>
 
-    <div class="col-md-5 d-flex flex-column border-start" style="height: 100%">
+    <div class="col-md-5 d-flex flex-column border-start" style="height: 100%; max-width: 500px;">
         <div class="row bg-body-tertiary pt-2 pb-2">
             <div class="btn-toolbar align-middle justify-content-between">
                 <div class="btn-group">
@@ -97,7 +97,8 @@
                     <th>Item</th>
                     <th class="col-md-2">Hrg</th>
                     <th class="col-md-1">Jml</th>
-                    <th class="col-md-1">Diskon</th>
+                    <th class="col-md-1">Disc</th>
+                    <th class="col-md-1">&nbsp;</th>
                 </tr>
                 <tbody id="body_trxitem"></tbody>
             </table>
@@ -106,21 +107,19 @@
         <div id="sale_total" class="row bg-body-tertiary ps-1 pe-1">
             <form id="frm_sale_total">
                 <div class="row">
-                    <div class="col-4 p-1">
+                    <div class="col-3 p-1">
                         <label for="totalAmount" class="col-form-label">Jumlah</label>
                         <input type="text" id="totalAmount" class="form-control text-center" readonly>
                     </div>
-                    <div class="col-4 p-1">
+                    <div class="col-3 p-1">
                         <label for="totalDiscount" class="col-form-label">Diskon</label>
                         <input type="text" id="totalDiscount" class="form-control text-center" readonly>
                     </div>
-                    <!--
                     <div class="col-3 p-1">
                         <label for="totalTax" class="col-form-label">Pajak</label>
-                        <input type="number" id="totalTax" class="form-control" readonly>
+                        <input type="number" id="totalTax" class="form-control text-center" readonly>
                     </div>
-                    -->
-                    <div class="col-4 p-1">
+                    <div class="col-3 p-1">
                         <label for="grandTotal" class="col-form-label">Total</label>
                         <input type="text" id="grandTotal" class="form-control text-center" readonly>
                     </div>

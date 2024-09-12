@@ -64,9 +64,10 @@ router.get('/edit/:id', async(req, res) => {
         format(h.totalAmount, 0) as totalAmount,
         format(h.totalDiscount, 0) as totalDiscount,
         format(h.totalAmount - h.totalDiscount, 0) as grandTotal,
-        h.totalTax, h.totalPaid, h.statusId,
+        h.totalTax, h.totalPaid, h.statusId, s.name as statusName,
         h.notes, h.createdBy
         from sale_hdr h
+        left outer join sale_status s on s.id = h.statusId
         where h.id = ? and h.cafeId = ?`, [
             req.params.id, req.headers.cafe
         ]);
@@ -148,7 +149,7 @@ router.get('/recalculate/:saleId', async(req, res) => {
     } catch(err) {
         res.status(500).send({ok: 0, message: err, data: { totalAmout: 0, totalDiscount: 0, grandTotal : 0 }});
     };
-})
+});
 
 router.post('/field', async(req, res) => {
     try {
@@ -162,18 +163,30 @@ router.post('/field', async(req, res) => {
     }
 });
 
+router.post('/delitem', async(req, res) => {
+    try {
+        const [r, f] = await db.query(`delete from sale_item where id = ?`, [ req.body.trxId ]);
+        res.send({ ok: r.affectedRows, message: r.info });
+    } catch(err) {
+        res.status(500).send(err);
+    }
+});
+
 router.get('/', async(req, res) => {
     try {
         //new Date().toISOString().substring(0, 10)
         var whr_tgl = (req.headers.tgl == undefined || req.headers.tgl == '')? 
             '' : `and h.saleDate like '${req.headers.tgl} %' `;
-        const [r, f] = await db.query(`select h.*, 
+        var whr_cari = (req.headers.cari == undefined || req.headers.cari == '')?
+            '' : `and h.saleTo like '${req.headers.cari}%' `;
+        const [r, f] = await db.query(`select h.*,
+            h.totalAmount - h.totalDiscount - h.totalTax as grandTotal,
             date_format(h.saleDate, '%H:%i') as tgl,
             t.name as typeName, s.name as statusName
             from sale_hdr h
             left outer join sale_type t on t.id = h.saleType
             left outer join sale_status s on s.id = h.statusId
-            where h.cafeId = ? ${whr_tgl}
+            where h.cafeId = ? ${whr_tgl} ${whr_cari}
             order by h.saleDate desc
             limit ${max_row}`, [ req.headers.cafe ]);
         res.send({ ok: r.length, data: r });
