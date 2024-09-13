@@ -170,8 +170,8 @@ async function get_daftar_menu(dvc) {
             menu.data.forEach(m => {
                 if (m.active == 1)
                 dv.insertAdjacentHTML('beforeend', `
-                    <div class="pe-2" style="width:200px">
-                        <div class="card mb-3">
+                    <div class="pe-2" style="width:200px;">
+                        <div class="card mb-3" style="height: 120px;">
                             <!--
                             <div class="card-header">${m.categoryName}</div>
                             -->
@@ -718,6 +718,35 @@ async function fn_save_payment(btn) {
     }).catch(err => {
         alert(err);
     })
+}
+
+async function fn_delete_sale() {
+    let frm = document.getElementById('frm_sale_hdr');
+    if (frm.elements['id'].value == '') return false;
+    if (frm.elements['statusId'].value != 0) {
+        alert(`Status: ${frm.elements['statusName'].value}. Tidak dapat dihapus!`);
+        return;
+    }
+
+    if (confirm(`Yakin Anda akan menghapus transaksi ini?`)) {
+        await fetch(`${API}/sale/delhdr`, {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            },
+            body: JSON.stringify({ id: frm.elements['id'].value })
+        }).then(j => j.json()).then(ret => {
+            if (ret.ok == 0) {
+                alert(`Gagal menghapus data. Error: ${ret.message}`);
+            } else {
+                get_sales_daftar();
+                fn_edit_trx(frm.elements['id'].value);
+            }
+        })
+    }
 }
 
 async function fn_print_struk() {

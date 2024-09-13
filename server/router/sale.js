@@ -187,6 +187,18 @@ router.post('/delitem', async(req, res) => {
     }
 });
 
+router.post('/delhdr', async(req, res) => {
+    try {
+        // TODO: Perlu diperkuat dengan pengecekan statusId terlebih dahulu
+        const [r, f] = await db.query(`update sale_hdr
+            set statusId = -1
+            where id = ?`, [ req.body.id ]);
+        res.send({ ok: r.affectedRows, message: r.info });
+    } catch(err) {
+        res.status(500).send(err);
+    }
+})
+
 router.post('/pay', async(req, res) => {
     try {
         const [r, f] = await db.query(`insert into sale_payment 
