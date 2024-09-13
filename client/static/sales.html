@@ -4,7 +4,8 @@
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a id="sales_menu" 
-                    data-func="fn_sales_menu" 
+                    data-func="fn_sales_menu"
+                    data-index="0"
                     onclick="fn_sales_tab(this)"
                     class="nav-link sales_tab active"
                     title="Daftar Menu"
@@ -13,6 +14,7 @@
                 <li class="nav-item">
                     <a id="sales_daftar" 
                     data-func="fn_sales_daftar"
+                    data-index="1"
                     onclick="fn_sales_tab(this)"
                     class="nav-link sales_tab"
                     title="Daftar Penjualan"
@@ -34,11 +36,14 @@
                         onclick="fn_new_trx()">
                         <i class="bi bi-plus-lg"></i> Baru
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" title="Pembayaran">
+                    <button type="button" class="btn btn-outline-secondary" title="Pembayaran" onclick="fn_show_payment()">
                         <i class="bi bi-credit-card"></i> Bayar
                     </button>
                     <button type="button" class="btn btn-outline-secondary" title="Hitung ulang" onclick="fn_recalculate_sale()">
                         <i class="bi bi-calculator"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" title="Cetak struk" onclick="fn_print_struk()">
+                        <i class="bi bi-printer"></i>
                     </button>
                 </div>
                 <div id="sale_prg" class="spinner-border text-primary" role="status" style="margin-right: 16px;">
@@ -109,19 +114,19 @@
                 <div class="row">
                     <div class="col-3 p-1">
                         <label for="totalAmount" class="col-form-label">Jumlah</label>
-                        <input type="text" id="totalAmount" class="form-control text-center" readonly>
+                        <input type="text" id="_totalAmount" class="form-control text-center" readonly>
                     </div>
                     <div class="col-3 p-1">
                         <label for="totalDiscount" class="col-form-label">Diskon</label>
-                        <input type="text" id="totalDiscount" class="form-control text-center" readonly>
+                        <input type="text" id="_totalDiscount" class="form-control text-center" readonly>
                     </div>
                     <div class="col-3 p-1">
                         <label for="totalTax" class="col-form-label">Pajak</label>
-                        <input type="number" id="totalTax" class="form-control text-center" readonly>
+                        <input type="number" id="_totalTax" class="form-control text-center" readonly>
                     </div>
                     <div class="col-3 p-1">
                         <label for="grandTotal" class="col-form-label">Total</label>
-                        <input type="text" id="grandTotal" class="form-control text-center" readonly>
+                        <input type="text" id="_grandTotal" class="form-control text-center" readonly>
                     </div>
                 </div>
             </form>

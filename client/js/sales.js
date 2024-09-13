@@ -1,10 +1,15 @@
 // Author : Emanuel Setio Dewo, 09/09/2024
 
+// reference: https://github.com/rubenruvalcabac/epson-epos-sdk-react
+// https://www.npmjs.com/package/node-thermal-printer
+
+let active_tab = 0;
 let active_kategori = 0;
 let sales_page = 0;
 let sale_tgl = '';
 let sale_cari = '';
 let sale_prg;
+let payment_type = [];
 
 async function fn_penjualan() {
     main.innerHTML = await fetch_static('./static/sales.html');
@@ -13,6 +18,7 @@ async function fn_penjualan() {
     const init_tab = document.getElementById('sales_menu');
     init_tab.click();
     init_sales_type();
+    init_payment_type();
 }
 
 async function fn_sales_tab(tab) {
@@ -25,6 +31,7 @@ async function fn_sales_tab(tab) {
         }
     }
     tab.classList.add('active');
+    active_tab = tab.dataset.index;
 
     var f = tab.dataset.func;
     if (typeof window[f] === 'function') {
@@ -68,6 +75,23 @@ async function init_sales_type() {
                 </input>`)
         })
     })
+}
+
+async function init_payment_type() {
+    await fetch(`${API}/sale/paymenttype`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(data => {
+        payment_type = data;
+    })
+    .catch(err => {
+        alert(err);
+    });
 }
 
 async function get_daftar_kategori(dv) {
@@ -256,7 +280,7 @@ function render_trxitem(tbl, par) {
     let prc = Number(par.basePrice).toLocaleString();
     let stt = document.getElementById('frm_sale_hdr').elements['statusId'];
     let del = (stt.value == 0)? `
-        <button class="btn btn-outline-danger" onclick="fn_delete_item(${par.saleId}, ${par.id})">
+        <button class="btn btn-sm btn-danger" onclick="fn_delete_item(${par.saleId}, ${par.id})">
             <i class="bi-trash"></i>
         </button>` : '';
     tbl.insertAdjacentHTML('beforeend', `
@@ -302,7 +326,7 @@ function fn_recalculate_sale() {
         return;
     }
     if (statusId != 0) {
-        alert('Status transaksi sudah dibayar/dihapus. Tidak dapat ditambahkan item baru!');
+        alert(`Status transaksi: ${hdr.elements['statusName'].value}`);
         return;
     }
     recalculate_sale(saleId);
@@ -321,9 +345,10 @@ async function recalculate_sale(id) {
         if (ret.ok == 0) {}
         else {
             let datanya = {
-                totalAmount : Number(ret.data.totalAmount).toLocaleString(),
-                totalDiscount : Number(ret.data.totalDiscount).toLocaleString(),
-                grandTotal : Number(ret.data.grandTotal).toLocaleString()
+                _totalAmount : Number(ret.data.totalAmount).toLocaleString(),
+                _totalDiscount : Number(ret.data.totalDiscount).toLocaleString(),
+                _totalTax : Number(ret.data.totalTax).toLocaleString(),
+                _grandTotal : Number(ret.data.grandTotal).toLocaleString()
             }
             populate_form('frm_sale_total', datanya);
             console.log('total', datanya);
@@ -528,7 +553,7 @@ async function get_sales_daftar() {
             <th class="bg-body-tertiary">Pembeli</th>
             <th class="col-md-1 bg-body-tertiary">Total</th>
             <th class="col-md-1 bg-body-tertiary">Status</th>
-            <th class="col-md-1 bg-body-tertiary"></th>
+            <th class="col-md-1 bg-body-tertiary" style="width:50px;">&nbsp;</th>
         </tr>
         <tbody id="body_sales_daftar"></tbody>
         </table>`;
@@ -549,6 +574,13 @@ async function get_sales_daftar() {
         let daft = document.getElementById('body_sales_daftar');
         if (data.ok > 0) {
             data.data.forEach(d => {
+                let wrn = '';
+                if (d.statusId < 0) {
+                    wrn = 'text-danger';
+                }
+                if (d.statusId > 0) {
+                    wrn = 'text-success';
+                }
                 let grandTotal = Number(d.grandTotal).toLocaleString();
                 daft.insertAdjacentHTML('beforeend', `
                     <tr>
@@ -557,9 +589,9 @@ async function get_sales_daftar() {
                     <td class="align-middle">${d.typeName}</td>
                     <td class="align-middle">${d.saleTo}</td>
                     <td class="align-middle text-end">${grandTotal}</td>
-                    <td class="align-middle">${d.statusName}</td>
+                    <td class="align-middle bg-body-tertiary text-center ${wrn}">${d.statusName}</td>
                     <td class="align-middle">
-                        <button type="button" class="btn btn-secondary" onclick="fn_edit_trx(${d.id})">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="fn_edit_trx(${d.id})">
                             <i class="bi-arrow-right"></i>
                         </button>
                     </td>
@@ -568,4 +600,130 @@ async function get_sales_daftar() {
         }
     });
     sale_prg.style.display = 'none';
+}
+
+async function fn_show_payment() {
+    let hdr = document.getElementById('frm_sale_hdr');
+    let saleId = hdr.elements['id'].value;
+    if (saleId == null || saleId == '') return;
+
+    let statusId = hdr.elements['statusId'].value;
+    if (statusId != 0) {
+        let statusName = hdr.elements['statusName'].value;
+        alert(`Status ${statusName}. Tidak dapat dilakukan pembayaran lagi.`);
+        return;
+    }
+
+    let frm = await fetch_static('./static/edit_payment.html');
+    const tombol = `
+        <button type="button" class="btn btn-primary" onclick="fn_save_payment(this)">
+            <i class="bi bi-send-check"></i> Bayarkan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Pembayaran', frm, tombol);
+
+    await fetch(`${API}/sale/edit/${saleId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(data => {
+        if (data.ok > 0) {
+            populate_form('frm_pay_sale', data.data);
+            let opt = optionize(payment_type);
+            document.getElementById('frm_pay_sale').elements['paymentType'].innerHTML = opt;
+        }
+    });
+    blank_prg.style.display = 'none';
+}
+
+function change_payment_type(select) {
+    let det = payment_type.find(o => o.id == select.value);
+    console.log('det', det);
+    if (det == null) return;
+    let grandTotal = Number(valueof('frm_pay_sale', 'grandTotal'));
+    let finalAmount = grandTotal;
+    if (det.percent == 0) {
+        payCharge = Number(det.paymentCharge);
+        finalAmount = grandTotal + Number(det.paymentCharge);
+    } else {
+        payCharge = (grandTotal * Number(det.paymentCharge) / 100);
+        finalAmount = grandTotal + payCharge;
+    }
+    setvalueof('frm_pay_sale', 'payCharge', Number(payCharge).toLocaleString());
+    //setvalueof('frm_pay_sale', '_payCharge', );
+    setvalueof('frm_pay_sale', 'finalAmount', finalAmount);
+    setvalueof('frm_pay_sale', '_finalAmount', Number(finalAmount).toLocaleString());
+}
+
+function fn_jumlah_pas() {
+    let fa = valueof('frm_pay_sale', 'finalAmount');
+    if (fa == '' || fa == 0) {
+        fa = valueof('frm_pay_sale', 'grandTotal');
+    }
+    //setvalueof('frm_pay_sale', 'payAmount', fa);
+    setvalueof('frm_pay_sale', 'payAmount', Number(fa).toLocaleString());
+    hitung_kembalian(document.getElementById('payAmount'));
+}
+
+function hitung_kembalian(inp) {
+    let paymentType = valueof('frm_pay_sale', 'paymentType');
+    if (paymentType == '') {
+        alert('Pilih jenis pembayaran terlebih dahulu!');
+        return;
+    }
+    let fa = valueof('frm_pay_sale', 'finalAmount');
+    let byr = inp.value;
+    byr = String(byr).replace(/,/g, '');
+    let sisa = Number(byr) - Number(fa);
+    if (sisa < 0) sisa = 0;
+    setvalueof('frm_pay_sale', 'payChange', Number(sisa).toLocaleString());
+}
+
+async function fn_save_payment(btn) {
+    if (invalid_input('frm_pay_sale', 'paymentType', 'Pilih dulu jenis pembayaran!')) return;
+    if (invalid_input('frm_pay_sale', 'payAmount', 'Masukkan jumlah bayar!')) return;
+    let fa = valueof('frm_pay_sale', 'finalAmount');
+    let pa = valueof('frm_pay_sale', 'payAmount');
+
+    if (Number(String(fa).replace(/,/g, '')) > Number(String(pa).replace(/,/g, ''))) {
+        alert("Nilai pembayaran harus sama dengan atau lebih besar dari pada harga akhir!");
+        return;
+    }
+    btn.style.display = 'none';
+    blank_prg.style.display = 'inline-block';
+
+    let par = serialize_form('frm_pay_sale');
+    par['payAmount'] = String(par['payAmount']).replace(/,/g, '');
+    par['payChange'] = String(par['payChange']).replace(/,/g, '');
+    
+    await fetch(`${API}/sale/pay`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify(par)
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok > 0) {
+            blank_dlg.hide();
+            if (active_tab == 1) get_sales_daftar();
+            fn_edit_trx(par['id']);
+        }
+    }).catch(err => {
+        alert(err);
+    })
+}
+
+async function fn_print_struk() {
+    var a = window.open('', '', "height=900, width=800");
+    a.document.write('<html>');
+    a.document.write('<body>Test pencetakan</body>');
+    a.document.write('</html>');
+    a.print();
 }

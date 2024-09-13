@@ -196,3 +196,43 @@ select sum(quantity * basePrice) as totalAmount,
 sum(quantity * (basePrice * discount / 100)) as totalDiscount
 from sale_item
 where saleId = 1;
+
+create table payment_type(
+    id int primary key,
+    name varchar(128),
+    cafeId varchar(16),
+    percent smallint default 0,
+    paymentCharge decimal(10, 2) default 0,
+    bankName varchar(128),
+    bankAccount varchar(128),
+    bankNum varchar(128),
+    active smallint,
+    index(cafeId),
+    index(bankName),
+    index(bankAccount),
+    index(bankNum)
+);
+insert into payment_type values
+(1, 'Tunai', 'DECAFEIN', 0, 0, '', '', '', 1),
+(2, 'QRIS Statis', 'DECAFEIN', 1, 0.7, 'Bank Mandiri', 'Emanuel Setio Dewo', '123456789', 1),
+(3, 'QRIS', 'DECAFEIN', 1, 0.7, 'Bank Mandiri', 'Emanuel Setio Dewo', '123456789', 1),
+(4, 'Kartu Kredit BCA', 'DECAFEIN', 1, 3, 'Bank BCA', 'Emanuel Setio Dewo', '123456789', 1),
+(5, 'Kartu Debit BCA', 'DECAFEIN', 1, 0, 'Bank BCA', 'Emanuel Setio Dewo', '123456789', 1);
+
+create table sale_payment(
+    id bigint auto_increment primary key,
+    saleId bigint,
+    cafeId varchar(16),
+    paymentType int,
+    grandTotal decimal(10, 2),
+    paymentCharge decimal(10, 2),
+    payAmount decimal(10, 2),
+    payChange decimal(10, 2),
+    notes text,
+    createdBy int,
+    createdAt datetime,
+    index(saleId),
+    index(cafeId),
+    index(paymentType),
+    index(createdBy)
+);

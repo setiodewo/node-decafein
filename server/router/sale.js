@@ -19,6 +19,14 @@ router.get("/type", async(req, res) => {
     }
 });
 
+router.get("/paymenttype", async(req, res) => {
+    const [r, f] = await db.query(`select * 
+        from payment_type 
+        where cafeId = ?
+        order by id`, [req.headers.cafe]);
+    res.send(r);
+})
+
 router.get('/new', async(req, res) => {
     try {
         const [r, f] = await db.query(`insert into sale_hdr
@@ -61,10 +69,15 @@ router.get('/new', async(req, res) => {
 router.get('/edit/:id', async(req, res) => {
     const [r, f] = await db.query(`select h.id, h.cafeId, date_format(h.saleDate, '%d/%m/%Y %H:%i') as saleDate,
         h.saleType, h.saleTo, h.phoneNum, h.tableId,
-        format(h.totalAmount, 0) as totalAmount,
-        format(h.totalDiscount, 0) as totalDiscount,
-        format(h.totalAmount - h.totalDiscount, 0) as grandTotal,
-        h.totalTax, h.totalPaid, h.statusId, s.name as statusName,
+        h.totalAmount,
+        format(h.totalAmount, 0) as _totalAmount,
+        h.totalDiscount,
+        format(h.totalDiscount, 0) as _totalDiscount,
+        h.totalAmount - h.totalDiscount as grandTotal,
+        format(h.totalAmount - h.totalDiscount, 0) as _grandTotal,
+        h.totalTax, 
+        format(h.totalTax, 0) as _totalTax,
+        h.totalPaid, h.statusId, s.name as statusName,
         h.notes, h.createdBy
         from sale_hdr h
         left outer join sale_status s on s.id = h.statusId
@@ -85,7 +98,7 @@ router .get('/daftaritem/:saleId', async(req, res) => {
 router.post('/additem/:saleId', async(req, res) => {
     var amountDiscount = 0;
     if (req.body.discount > 0) {
-        amountDiscount = req.body.basePrice - (req.body.basePrice / 100);
+        amountDiscount = req.body.quantity * req.body.basePrice * req.body.discount / 100;
     }
     try {
         const [r, f] = await db.query(`insert into sale_item
@@ -128,7 +141,8 @@ router.post('/additem/:saleId', async(req, res) => {
 router.get('/recalculate/:saleId', async(req, res) => {
     try {
         const [r, f] = await db.query(`select sum(quantity * basePrice) as totalAmount,
-            sum(quantity * (basePrice * discount / 100)) as totalDiscount
+            sum(quantity * (basePrice * discount / 100)) as totalDiscount,
+            sum(amountTax) as totalTax
             from sale_item
             where saleId = ?`, [ req.params.saleId ]);
         if (r.length > 0) {
@@ -140,6 +154,7 @@ router.get('/recalculate/:saleId', async(req, res) => {
             res.send({ ok : r[0].length, data: { 
                 totalAmount: r[0].totalAmount, 
                 totalDiscount: r[0].totalDiscount,
+                totalTax: r[0].totalTax,
                 grandTotal: r[0].totalAmount - r[0].totalDiscount,
                 message: 'recalculate'
             } });
@@ -169,6 +184,43 @@ router.post('/delitem', async(req, res) => {
         res.send({ ok: r.affectedRows, message: r.info });
     } catch(err) {
         res.status(500).send(err);
+    }
+});
+
+router.post('/pay', async(req, res) => {
+    try {
+        const [r, f] = await db.query(`insert into sale_payment 
+            set saleId = ?,
+            cafeId = ?,
+            paymentType = ?,
+            grandTotal = ?,
+            paymentCharge = ?,
+            payAmount = ?,
+            payChange = ?,
+            notes = ?,
+            createdBy = ?,
+            createdAt = now()`, [
+                req.body.id,
+                req.headers.cafe,
+                req.body.paymentType,
+                req.body.grandTotal,
+                req.body.payCharge,
+                req.body.payAmount,
+                req.body.payChange,
+                req.body.notes,
+                req.params.id
+            ]);
+        if (r.affectedRows > 0) {
+            const [r_hdr, f_hdr] = await db.query(`update sale_hdr
+                set totalPaid = ?, statusId = 1
+                where id = ?`, [
+                    Number(req.body.grandTotal) + Number(req.body.payCharge),
+                    req.body.id
+                ]);
+        }
+        res.send({ ok: r.affectedRows, message: r.info });
+    } catch(err) {
+        res.send({ ok: 0, message: err });
     }
 });
 

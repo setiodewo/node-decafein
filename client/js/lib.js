@@ -55,3 +55,15 @@ function serialize_form(id) {
     }
     return par;
 }
+
+function optionize(arr) {
+    var opt = "<option></option>";
+    if (arr === undefined) {}
+    else {
+        arr.forEach(a => {
+            var val = Object.values(a);
+            opt += `<option value='${val[0]}' style="word-wrap: normal !important">${val[1]}</option>`;
+        });
+    }
+    return opt;
+}

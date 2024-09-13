@@ -1,0 +1,59 @@
+<form id="frm_pay_sale">
+    <input type="hidden" id="id">
+    <input type="hidden" id="grandTotal">
+    <input type="hidden" id="finalAmount">
+    <div class="mb-2 row">
+        <label for="grandTotal" class="col-md-3 col-form-label">Total</label>
+        <div class="col input-group input-group-lg">
+            <span class="input-group-text" id="currencyName">IDR</span>
+            <input type="text" id="_grandTotal" class="form-control bg-body-tertiary" readonly>
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="paymentType" class="col-md-3 col-form-label">Jenis Bayar</label>
+        <div class="col">
+            <select id="paymentType" class="form-control" onchange="change_payment_type(this)"></select>
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="cardNum" class="col-md-3 col-form-label">Nmr Kartu</label>
+        <div class="col">
+            <input text="text" id="cardNum" class="form-control">
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="payCharge" class="col-md-3 col-form-label">Payment Charge</label>
+        <div class="col input-group input-group-lg">
+            <span class="input-group-text" id="currencyName">IDR</span>
+            <input type="text" id="payCharge" class="form-control bg-body-tertiary" readonly>
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="finalAmount" class="col-md-3 col-form-label">Jml Akhir</label>
+        <div class="col input-group input-group-lg">
+            <span class="input-group-text" id="currencyName">IDR</span>
+            <input type="text" id="_finalAmount" class="form-control bg-body-tertiary" readonly>
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="payAmount" class="col-md-3 col-form-label">Jml Bayar</label>
+        <div class="col input-group input-group-lg">
+            <span class="input-group-text" id="currencyName">IDR</span>
+            <input type="text" id="payAmount" class="form-control" oninput="hitung_kembalian(this)">
+            <button class="btn btn-primary" id="btn_pas" onclick="fn_jumlah_pas(this)">Pas</button>
+        </div>
+    </div>
+    <div class="mb-2 row">
+        <label for="payChange" class="col-md-3 col-form-label">Kembalian Tunai</label>
+        <div class="col input-group input-group-lg">
+            <span class="input-group-text" id="currencyName">IDR</span>
+            <input type="text" id="payChange" class="form-control">
+        </div>
+    </div>
+    <div class="row">
+        <label for="notes" class="col-md-3 col-form-label">Catatan</label>
+        <div class="col">
+            <textarea type="text" id="notes" class="form-control" rows="2"></textarea>
+        </div>
+    </div>
+</form>
