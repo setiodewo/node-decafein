@@ -698,6 +698,7 @@ async function fn_save_payment(btn) {
 
     let par = serialize_form('frm_pay_sale');
     par['payAmount'] = String(par['payAmount']).replace(/,/g, '');
+    par['payCharge'] = String(par['payCharge']).replace(/,/g, '');
     par['payChange'] = String(par['payChange']).replace(/,/g, '');
     
     await fetch(`${API}/sale/pay`, {
