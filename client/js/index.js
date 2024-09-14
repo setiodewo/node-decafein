@@ -592,3 +592,132 @@ async function fn_simpan_cafe(btn) {
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
 }
+
+function fn_master_paytype() {
+    main.innerHTML = `
+        <div class="mt-3 mb-3 input-group">
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-outline-secondary"
+                onclick="fn_edit_paytype()">
+                <i class="bi bi-plus-lg"></i>
+                Tambah
+            </button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Nama</th>
+                <th>Persentase?</th>
+                <th>Payment Charge</th>
+                <th>Nama Bank</th>
+                <th>Aktif</th>
+            </thead>
+            <tbody id="table_payment_type"></tbody>
+        </table>`;
+    get_master_paytype();
+}
+
+async function get_master_paytype() {
+    let tbl = document.getElementById('table_payment_type');
+    tbl.innerHTML = '';
+    await fetch(`${API}/sale/paymenttype`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(pay => {
+        pay.forEach(p => {
+            let persen = (p.percent == 0) ? 'Tetap' : 'Persen';
+            let aktif = (p.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
+            tbl.insertAdjacentHTML('beforeend', `
+                <tr>
+                <td>
+                    <button class="btn btn-sm btn-secondary"
+                        data-id="${p.id}"
+                        onclick="fn_edit_paytype(${p.id})">
+                    <i class="bi-pencil"></i>
+                    </button>
+                </td>
+                <td class="align-middle">${p.name}</td>
+                <td class="align-middle">${persen}</td>
+                <td class="align-middle">${p.paymentCharge}</td>
+                <td class="align-middle">${p.bankName}</td>
+                <td class="align-middle">${aktif}</td>
+                </tr>`)
+        })
+    });
+}
+
+async function fn_edit_paytype(id) {
+    const frm = await fetch_static('./static/edit_paytype.html');
+    const btn = `
+        <button type="button" class="btn btn-primary" onclick="fn_simpan_paytype(this)">
+            <i class="bi bi-floppy"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Edit Tipe Pembayaran', frm, btn);
+
+    if (id == undefined || id == null) {
+        blank_dlg_title.innerHTML = "Tambah Tipe Pembayaran";
+    } else {
+        await fetch(`${API}/sale/editpaytype/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type' : 'application/json',
+                'id' : profile.id,
+                'token' : profile.token,
+                'cafe' : cafe.id
+            }
+        }).then(j => j.json()).then(ret => {
+            populate_form('frm_payment_type', ret);
+            let _percent = document.getElementById('frm_payment_type').elements['percent'];
+            if (ret.percent == 0) _percent.checked = false;
+            else _percent.checked = true;
+
+            let _active = document.getElementById('frm_payment_type').elements['active'];
+            if (ret.active == 0) _active.checked = false;
+            else _active.checked = true;
+        });
+    }
+    blank_prg.style.display = 'none';
+}
+
+async function fn_simpan_paytype(btn) {
+    // validasi dulu
+    if (invalid_input('frm_payment_type', 'name', 'Nama tipe pembayaran harus diisi!')) return;
+
+    btn.style.display = 'none';
+    blank_prg.style.display = 'inline-block';
+
+    var par = serialize_form('frm_payment_type');
+    par['active'] = document.getElementById('frm_payment_type').elements['active'].checked ? 1 : 0;
+    par['percent'] = document.getElementById('frm_payment_type').elements['percent'].checked ? 1 : 0;
+
+    await fetch(`${API}/sale/savepaytype`, {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: JSON.stringify(par)
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 0) {
+            alert(ret.message);
+        } else {
+            blank_dlg.hide();
+            get_master_paytype();
+        }
+    }).catch(err => {
+        alert(err);
+    });
+    btn.style.display = 'inline-block';
+    blank_prg.style.display = 'none';
+}

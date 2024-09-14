@@ -257,6 +257,59 @@ router.get('/', async(req, res) => {
     } catch(err) {
         res.status(500).send(err.message);
     }
+});
+
+router.get('/editpaytype/:id', async(req, res) => {
+    const [r, f] = await db.query(`select *, 0 as md from payment_type where cafeId = ? and id = ?`,
+        [ req.headers.cafe, req.params.id ]
+    );
+    res.send(r[0]);
+});
+
+router.post('/savepaytype', async(req, res) => {
+    if (req.body.md == 0) {
+        // edit
+        const [r, f] = await db.query(`update payment_type
+            set name = ?,
+            percent = ?,
+            paymentCharge = ?,
+            bankName = ?,
+            bankAccount = ?,
+            bankNum = ?,
+            active = ?
+            where id = ?`, [
+                req.body.name,
+                req.body.percent,
+                req.body.paymentCharge,
+                req.body.bankName,
+                req.body.bankAccount,
+                req.body.bankNum,
+                req.body.active,
+                req.body.id
+            ]);
+        res.send({ ok: r.affectedRows, message: r.info });
+    } else {
+        // tambah
+        const [r, f] = await db.query(`insert into payment_type
+            set name = ?,
+            cafeId = ?,
+            percent = ?,
+            paymentCharge = ?,
+            bankName = ?,
+            bankAccount = ?,
+            bankNum = ?,
+            active = ?`, [
+                req.body.name,
+                req.headers.cafe,
+                req.body.percent,
+                req.body.paymentCharge,
+                req.body.bankName,
+                req.body.bankAccount,
+                req.body.bankNum,
+                req.body.active
+            ]);
+        res.send({ ok: r.affectedRows, message: r.info });
+    }
 })
 
 export default router;

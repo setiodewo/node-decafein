@@ -198,7 +198,7 @@ from sale_item
 where saleId = 1;
 
 create table payment_type(
-    id int primary key,
+    id int auto_increment primary key,
     name varchar(128),
     cafeId varchar(16),
     percent smallint default 0,

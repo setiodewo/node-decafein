@@ -1,0 +1,60 @@
+<form id="frm_payment_type" name="frm_payment_type">
+    <input type="hidden" id="id">
+    <input type="hidden" id="md" value="1">
+    <div class="row mb-3">
+        <label for="name" class="col-md-4 col-form-label">Tipe Pembayaran</label>
+        <div class="col">
+            <input type="text" id="name" class="form-control">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="percent" class="col-md-4 col-form-label">Persentase?</label>
+        <div class="col-md-8">
+            <div class="form-check">
+                <input id="percent" class="form-check-input mt-2" type="checkbox" value="1">
+                <label class="form-text ms-2" for="percent">
+                    Centang jika ada tambahan biaya (payment charge) dalam persentase dari nilai pembelian
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="paymentCharge" class="col-md-4 col-form-label">Payment Charge</label>
+        <div class="col">
+            <input type="number" id="paymentCharge" class="form-control">
+            <div class="form-text">
+                Berapa tambahan biaya (payment charge) yang dibebankan ke pembeli? Dalam persentasi atau nilai tetap tergantung centang di atas.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="bankName" class="col-md-4 col-form-label">Nama Bank</label>
+        <div class="col">
+            <input type="text" id="bankName" class="form-control">
+            <div class="form-text">
+                Jika dikosongkan, maka dianggap sebagai penerimaan tunai.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="bankAccount" class="col-md-4 col-form-label">Nama Rekening</label>
+        <div class="col">
+            <input type="text" id="bankAccount" class="form-control">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="bankNum" class="col-md-4 col-form-label">Nomor Rekening</label>
+        <div class="col">
+            <input type="text" id="bankNum" class="form-control">
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4 col-form-label">Aktif?</label>
+        <div class="col">
+            <div class="mt-2 form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="active">
+                <label class="form-check-label" for="active">Aktif?</label>
+            </div>
+        </div>
+    </div>
+</form>
