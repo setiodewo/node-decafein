@@ -731,20 +731,30 @@ function fn_laporan() {
     main.innerHTML = `
     <div class="col">
         <div id="panel_lap" class="mt-3 mb-3">
-            <div class="input-group">
+            <div class="input-group mb-2">
                 <span class="input-group-text">Bulan</span>
                 <select id="lap_bulan" class="form-control">${bulans}</select>
                 <span class="input-group-text">Tahun</span>
                 <input id="lap_tahun" class="form-control">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text">Penjualan</span>
                 <span class="input-group-text bi-graph-up"></span>
-                <button class="btn btn-primary" onclick="buat_lap_penjualan('sales1')">
-                    Penjualan
+                <button class="btn btn-primary" onclick="charting('sales1')">
+                    Harian
                 </button>
-                <button class="btn btn-primary" onclick="buat_lap_penjualan('sales12')">
-                    Penjualan Setahun
+                <button class="btn btn-primary" onclick="charting('sales12')">
+                    Bulanan
                 </button>
-                <button class="btn btn-primary" onclick="buat_lap_penjualan('salescat')">
-                    Per Kategori
+                <button class="btn btn-primary" onclick="charting('salescat')">
+                    Profit Per Kategori
+                </button>
+                <span class="input-group-text bi-printer"></span>
+                <button class="btn btn-primary" onclick="lap_xlsx('perkasir')">
+                    Per Kasir
+                </button>
+                <button class="btn btn-primary" onclick="lap_xlsx('perpembayaran')">
+                    Per Pembayaran
                 </button>
             </div>
         </div>
@@ -754,7 +764,7 @@ function fn_laporan() {
     document.getElementById('lap_tahun').value = lap_tahun;
 }
 
-async function buat_lap_penjualan(lap) {
+async function charting(lap) {
     const ctx = document.getElementById('lap_chart');
     ctx.height = 300;
     ctx.width = 900;
@@ -775,4 +785,43 @@ async function buat_lap_penjualan(lap) {
         chartContext = new Chart(ctx, cfg);
         
     }).catch(err => alert(err));
+}
+
+async function lap_xlsx(lap) {
+    let bln = document.getElementById('lap_bulan').value;
+    let thn = document.getElementById('lap_tahun').value;
+    var filename = '';
+    await fetch(`${API}/lap/${lap}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id,
+            'bln' : bln,
+            'thn' : thn
+        }
+    }).then((res) => {
+        console.log('DOWNLOAD XLS', res);
+        if (res.status == 200) {
+            const hdr = res.headers.get('Content-Disposition');
+            const part = hdr.split(';');
+            filename = part[1].split('=')[1];
+            filename = filename.replace(/['"]/g, '');
+            return res.blob();
+        } else {
+            throw res.statusText;
+        }
+    })
+    .then((xls) => {
+        const elm = document.createElement('a');
+        const href = URL.createObjectURL(xls);
+        elm.href = href;
+        elm.setAttribute('target', '_blank');
+        elm.setAttribute('download', filename);
+        elm.click();
+        URL.revokeObjectURL(href);
+    }).catch(err => {
+        alert(err);
+    });
 }

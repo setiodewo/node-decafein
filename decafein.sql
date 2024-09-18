@@ -1,5 +1,10 @@
 # 04/09/2024
 
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+SET PERSIST sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+brew services restart mysql
+
+
 create database decafein;
 create user decafein@localhost identified with caching_sha2_password by '5w4t1z3n2024!';
 grant all privileges on *.* to decafein@localhost;
@@ -236,3 +241,15 @@ create table sale_payment(
     index(paymentType),
     index(createdBy)
 );
+
+select date_format(h.saleDate, '%d') as x,
+i.categoryId, i.itemId, c.name as categoryName,
+sum(((i.basePrice * i.quantity) - amountDiscount - amountTax) - (i.COGS * i.quantity)) as PROFIT
+from sale_hdr h
+left outer join sale_item i on i.saleId = h.id
+left outer join menu_category c on c.id = i.categoryId
+where h.cafeId = 'DECAFEIN' and LEFT(h.saleDate, 7) = '2024-09' and h.statusId > 0
+group by 1, 2;
+
+
+

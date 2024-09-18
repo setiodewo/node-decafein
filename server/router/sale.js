@@ -220,7 +220,7 @@ router.post('/pay', async(req, res) => {
                 req.body.payAmount,
                 req.body.payChange,
                 req.body.notes,
-                req.params.id
+                req.headers.id
             ]);
         if (r.affectedRows > 0) {
             const [r_hdr, f_hdr] = await db.query(`update sale_hdr
