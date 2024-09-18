@@ -642,7 +642,6 @@ async function fn_show_payment() {
 
 function change_payment_type(select) {
     let det = payment_type.find(o => o.id == select.value);
-    console.log('det', det);
     if (det == null) return;
     let grandTotal = Number(valueof('frm_pay_sale', 'grandTotal'));
     let finalAmount = grandTotal;

@@ -67,3 +67,12 @@ function optionize(arr) {
     }
     return opt;
 }
+
+function opsi_bulan() {
+    // butuh moment.js
+    let opt = '';
+    moment.months().forEach(function(bln, idx) {
+        opt += `<option value='${idx}'>${bln}</option>`;
+    })
+    return opt;
+}

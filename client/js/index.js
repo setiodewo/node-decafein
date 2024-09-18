@@ -1,6 +1,6 @@
 // Author : Emanuel Setio Dewo, 07/09/2024
 
-const API = "http://192.168.100.40:4000";
+const API = "http://localhost:4000";
 let profile = {};
 let cafe = {};
 
@@ -10,6 +10,10 @@ const blank_dlg_title = document.getElementById('blank_dlg_title');
 const blank_dlg_body = document.getElementById('blank_dlg_body');
 const blank_dlg_footer = document.getElementById('blank_dlg_footer');
 const blank_prg = document.getElementById('blank_prg');
+
+let lap_bulan = moment().month();
+let lap_tahun = moment().year();
+let chartContext = null;
 
 window.addEventListener("load", async(ev) => {
     // Cek profile
@@ -720,4 +724,55 @@ async function fn_simpan_paytype(btn) {
     });
     btn.style.display = 'inline-block';
     blank_prg.style.display = 'none';
+}
+
+function fn_laporan() {
+    var bulans = opsi_bulan();
+    main.innerHTML = `
+    <div class="col">
+        <div id="panel_lap" class="mt-3 mb-3">
+            <div class="input-group">
+                <span class="input-group-text">Bulan</span>
+                <select id="lap_bulan" class="form-control">${bulans}</select>
+                <span class="input-group-text">Tahun</span>
+                <input id="lap_tahun" class="form-control">
+                <span class="input-group-text bi-graph-up"></span>
+                <button class="btn btn-primary" onclick="buat_lap_penjualan('sales1')">
+                    Penjualan
+                </button>
+                <button class="btn btn-primary" onclick="buat_lap_penjualan('sales12')">
+                    Penjualan Setahun
+                </button>
+                <button class="btn btn-primary" onclick="buat_lap_penjualan('salescat')">
+                    Per Kategori
+                </button>
+            </div>
+        </div>
+        <canvas id="lap_chart"></canvas>
+    </div>`;
+    document.getElementById('lap_bulan').value = lap_bulan;
+    document.getElementById('lap_tahun').value = lap_tahun;
+}
+
+async function buat_lap_penjualan(lap) {
+    const ctx = document.getElementById('lap_chart');
+    ctx.height = 300;
+    ctx.width = 900;
+    let bln = document.getElementById('lap_bulan').value;
+    let thn = document.getElementById('lap_tahun').value;
+    await fetch(`${API}/lap/${lap}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id,
+            'bln' : bln,
+            'thn' : thn
+        }
+    }).then(j => j.json()).then(cfg => {
+        if (chartContext != null) chartContext.destroy();
+        chartContext = new Chart(ctx, cfg);
+        
+    }).catch(err => alert(err));
 }

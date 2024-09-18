@@ -36,12 +36,14 @@ import menu from "./router/menu.js";
 import user from "./router/user.js";
 import cafe from "./router/cafe.js";
 import sale from "./router/sale.js";
+import laporan from "./router/laporan.js";
 
 app.use("/login", login);
 app.use("/menu", menu);
 app.use("/user", user);
 app.use("/cafe", cafe);
 app.use("/sale", sale);
+app.use("/lap", laporan);
 
 app.get('/', (req, res) => {
     res.redirect('../client/index.html');
