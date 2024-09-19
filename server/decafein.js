@@ -7,7 +7,6 @@ import cors from 'cors';
 import conf from './config.js';
 
 const app = express();
-//const port = 4000;
 
 // Static
 app.use('/decafein', express.static('../client'));
