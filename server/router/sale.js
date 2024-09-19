@@ -243,6 +243,7 @@ router.get('/', async(req, res) => {
             '' : `and h.saleDate like '${req.headers.tgl} %' `;
         var whr_cari = (req.headers.cari == undefined || req.headers.cari == '')?
             '' : `and h.saleTo like '${req.headers.cari}%' `;
+        let offset = req.headers.page * max_row;
         const [r, f] = await db.query(`select h.*,
             h.totalAmount - h.totalDiscount - h.totalTax as grandTotal,
             date_format(h.saleDate, '%H:%i') as tgl,
@@ -252,7 +253,7 @@ router.get('/', async(req, res) => {
             left outer join sale_status s on s.id = h.statusId
             where h.cafeId = ? ${whr_tgl} ${whr_cari}
             order by h.saleDate desc
-            limit ${max_row}`, [ req.headers.cafe ]);
+            limit ${offset}, ${max_row}`, [ req.headers.cafe ]);
         res.send({ ok: r.length, data: r });
     } catch(err) {
         res.status(500).send(err.message);

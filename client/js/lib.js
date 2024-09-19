@@ -68,11 +68,24 @@ function optionize(arr) {
     return opt;
 }
 
+function pagination(max, pg, jml, lnk) {
+    let _prv = (pg == 0)? '' : `<li class='page-item'><a class='page-link' href='#' onclick="${lnk}(-1)">Previous</a></li>`;
+    let _nxt = (jml < max)? '' : `<li class='page-item'><a class='page-link' href='#' onclick="${lnk}(1)">Next</a></li>`;
+    let _pg = `<li class='page-item'><span class='page-link'>${pg + 1}</span></li>`;
+    return `<nav>
+        <ul class='pagination'>
+            ${_prv}
+            ${_pg}
+            ${_nxt}
+        </ul>
+    </nav>`;
+}
+
 function opsi_bulan() {
     // butuh moment.js
     let opt = '';
     moment.months().forEach(function(bln, idx) {
         opt += `<option value='${idx}'>${bln}</option>`;
-    })
+    });
     return opt;
 }

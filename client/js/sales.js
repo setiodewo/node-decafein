@@ -10,6 +10,7 @@ let sale_tgl = '';
 let sale_cari = '';
 let sale_prg;
 let payment_type = [];
+const max_row = 10;
 
 async function fn_penjualan() {
     main.innerHTML = await fetch_static('./static/sales.html');
@@ -524,10 +525,10 @@ async function fn_sales_daftar() {
     panel1.innerHTML = `
         <div class="input-group" style="max-width: 600px;">
             <span class="input-group-text">Filter</span>
-            <input type="date" id="filter_tanggal" class="form-control" onchange="get_sales_daftar()">
+            <input type="date" id="filter_tanggal" class="form-control" onchange="search_sales_daftar()">
             <span class="input-group-text">Cari Pembeli</span>
             <input type="text" id="cari_pembeli" class="form-control">
-            <button type="button" class="btn btn-outline-secondary" onclick="get_sales_daftar()"><i class="bi-search"></i></button>
+            <button type="button" class="btn btn-outline-secondary" onclick="search_sales_daftar()"><i class="bi-search"></i></button>
             <button type="button" class="btn btn-outline-secondary" onclick="reset_sales_daftar()"><i class="bi-x-circle"></i></button>
         </div>`;
     if (sale_tgl != '') document.getElementById('filter_tanggal').value = sale_tgl;
@@ -535,7 +536,13 @@ async function fn_sales_daftar() {
     get_sales_daftar();
 }
 
+function search_sales_daftar() {
+    sales_page = 0;
+    get_sales_daftar();
+}
+
 function reset_sales_daftar() {
+    sales_page = 0;
     document.getElementById('filter_tanggal').value = '';
     document.getElementById('cari_pembeli').value = '';
     get_sales_daftar();
@@ -556,9 +563,11 @@ async function get_sales_daftar() {
             <th class="col-md-1 bg-body-tertiary" style="width:50px;">&nbsp;</th>
         </tr>
         <tbody id="body_sales_daftar"></tbody>
-        </table>`;
+        </table>
+        <div id='halaman_sales_daftar' class='mt-2'></div>`;
 
     sale_prg.style.display = 'inline-block';
+    let jml = 0;
     await fetch(`${API}/sale`, {
         method: 'GET',
         headers: {
@@ -573,6 +582,7 @@ async function get_sales_daftar() {
     }).then(j => j.json()).then(data => {
         let daft = document.getElementById('body_sales_daftar');
         if (data.ok > 0) {
+            jml = data.data.length;
             data.data.forEach(d => {
                 let wrn = '';
                 if (d.statusId < 0) {
@@ -596,10 +606,16 @@ async function get_sales_daftar() {
                         </button>
                     </td>
                     </tr>`);
-            })
+            });
+            document.getElementById('halaman_sales_daftar').innerHTML = pagination(max_row, sales_page, jml, "page_sales_daftar");
         }
     });
     sale_prg.style.display = 'none';
+}
+
+function page_sales_daftar(pg) {
+    sales_page += pg;
+    get_sales_daftar();
 }
 
 async function fn_show_payment() {
