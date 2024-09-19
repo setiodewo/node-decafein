@@ -4,9 +4,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import conf from './config.js';
 
 const app = express();
-const port = 4000;
+//const port = 4000;
 
 // Static
 app.use('/decafein', express.static('../client'));
@@ -49,6 +50,6 @@ app.get('/', (req, res) => {
     res.redirect('../client/index.html');
 });
 
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+app.listen(conf.port, () => {
+    console.log(`Listening on port ${conf.port}`);
 });

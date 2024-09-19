@@ -15,6 +15,8 @@ let lap_bulan = moment().month();
 let lap_tahun = moment().year();
 let chartContext = null;
 
+let menu_page = 0;
+
 window.addEventListener("load", async(ev) => {
     // Cek profile
     const p = localStorage.getItem('profile');
@@ -126,7 +128,8 @@ async function fn_master_menu() {
             </button>
         </div>
     </div>
-    <div id='mm_data'></div>`;
+    <div id='mm_data'></div>
+    <div id='halaman_menu'></div>`;
     var opsi_kategori = document.getElementById('opsi_kategori');
     opsi_kategori.innerHTML = await get_opsi_kategori();
 }
@@ -212,7 +215,8 @@ async function get_master_menu() {
             'id': profile.id,
             'token': profile.token,
             'cafe': cafe.id,
-            'kategori': opsi
+            'kategori': opsi,
+            'page': menu_page
         }
     })
     .then(j => j.json())
@@ -268,7 +272,7 @@ async function fn_master_kategori() {
                 <i class="bi bi-arrow-clockwise"></i> Refresh
             </button>
             <button class="btn btn-outline-secondary" onclick="fn_edit_kategori()">
-                <i class="bi bi-plus"></i> Tambah Kategori
+                <i class="bi bi-plus-lg"></i> Tambah Kategori
             </button>
         </div>
         <table class="table table-hover">

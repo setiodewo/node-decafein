@@ -10,6 +10,7 @@ import db from '../db.js';
 router.use(validate_token);
 
 router.get('/', async(req, res) => {
+    //let offset = req.headers.page * conf.max_row;
     try {
         var kategori = (req.headers.kategori == null || req.headers.kategori == '')? '' : `and m.categoryId='${req.headers.kategori}'`;
         const [r, f] = await db.query(`select m.*, mc.name as categoryName

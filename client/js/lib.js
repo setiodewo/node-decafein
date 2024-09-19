@@ -73,7 +73,7 @@ function pagination(max, pg, jml, lnk) {
     let _nxt = (jml < max)? '' : `<li class='page-item'><a class='page-link' href='#' onclick="${lnk}(1)">Next</a></li>`;
     let _pg = `<li class='page-item'><span class='page-link'>${pg + 1}</span></li>`;
     return `<nav>
-        <ul class='pagination'>
+        <ul class='pagination justify-content-end'>
             ${_prv}
             ${_pg}
             ${_nxt}
