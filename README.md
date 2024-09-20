@@ -11,6 +11,6 @@ Point of sales system for cafe, bakery, restaurant. Built with :
 ## To dos:
 
 1. Kiosk for self order with payment gateway (QRIS). Print order.
-2. Kitchen module (for restaurant). Print kitchen order.
+2. Kitchen module (for restaurant). Print/display kitchen order.
 3. Inventory. Print stock card.
 4. Accounting. GL.
