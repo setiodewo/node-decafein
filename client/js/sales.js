@@ -172,11 +172,12 @@ async function get_daftar_menu(dvc) {
                 if (m.active == 1)
                 dv.insertAdjacentHTML('beforeend', `
                     <div class="pe-2" style="width:200px;">
-                        <div class="card mb-3" style="height: 150px;">
+                        <div class="card mb-3">
                             <!--
                             <div class="card-header">${m.categoryName}</div>
                             -->
-                            <div class="card-body">
+                            <img src="${m.img}" class="card-img-top menu-img">
+                            <div class="card-body menu-title">
                                 <p class="card-text">${m.name}</p>
                             </div>
                             <div class="card-footer align-middle">

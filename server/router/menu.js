@@ -5,6 +5,8 @@ var router = express.Router();
 
 import validate_token from './validasi-token.js';
 import db from '../db.js';
+import conf from '../config.js';
+import fs from 'fs';
 
 // middleware validasi token
 router.use(validate_token);
@@ -19,6 +21,13 @@ router.get('/', async(req, res) => {
             where m.cafeId=? ${kategori}
             order by m.name`,
             [req.headers.cafe]);
+        r.forEach(async(e, i) => {
+            if (fs.existsSync(`${conf.upload_folder}/${e.id}`)) {
+                r[i].img = `foto/${e.id}`
+            } else {
+                r[i].img = conf.default_img;
+            }
+        })
         res.send({
             "ok": r.length,
             "data": r

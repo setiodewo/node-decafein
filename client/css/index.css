@@ -1,0 +1,20 @@
+.menu-title {
+    position: absolute;
+    bottom: 3em;
+    line-height: 110%;
+    text-shadow: 0 0 10px black;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    padding: 8px !important;
+}
+
+.menu-img {
+    height: 130px;
+    object-fit: cover;
+}
+
+.menu-thumbnail {
+    height: 48px;
+    width: 48px;
+    object-fit: cover;
+}

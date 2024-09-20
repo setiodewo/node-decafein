@@ -237,7 +237,7 @@ function render_master_menu(data) {
             <th scope="col">Kategori</th>
             <th scope="col" colspan=2>Harga</th>
             <th scope="col">HPP</th>
-            <th scope="col" colspan=2>Gambar</th>
+            <th scope="col" colspan=2>Upload</th>
             <th scope="col">Aktif</th>
         </tr>`;
     d.forEach(r => {
@@ -253,16 +253,60 @@ function render_master_menu(data) {
         <td class="align-middle">${r.currency}</td>
         <td class="align-middle">${Number(r.basePrice).toLocaleString()}</td>
         <td class="align-middle">${Number(r.COGS).toLocaleString()}</td>
-        <td class="align-middle">
-            <a href="#" onclick="fn_upload_gambar_menu(${r.id})" class="btn btn-secondary">
+        <td class="align-middle" style="width: 50px;">
+            <a href="#" onclick="fn_upload_gambar_menu(this, ${r.id})" class="btn btn-secondary">
                 <i class="bi-cloud-upload"></i>
             </a>
         </td>
-        <td class="align-middle"></i></td>
+        <td class="align-middle" style="width: 50px;"><img src="${r.img}" class="menu-thumbnail"></td>
         <td class="align-middle">${aktif}</td>
         </tr>`;
     });
     return `${ret}</table>`;
+}
+
+async function fn_upload_gambar_menu(btn, id) {
+    let frm_upload = await fetch_static('./static/frm_upload.html');
+    const tombol = `
+        <button type="button" class="btn btn-primary" value="Upload" onclick="return go_upload_file(this, ${id})">Upload</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Upload Foto Menu', frm_upload, tombol);
+    blank_prg.style.display = 'none';
+}
+
+async function go_upload_file(btn, id) {
+    btn.style.display = 'none';
+
+    const max_size = 2 * 1024 * 1024;
+    let frm = document.getElementById('frm_upload_file');
+    let f = frm.elements['namafile'];
+    if (f.files && f.files.length == 1 && f.files[0].size > max_size) {
+        alert(`Ukuran gambar tidak boleh lebih dari ${max_size}`);
+        return false;
+    }
+    const data = new FormData();
+    data.append('filenya', f.files[0])
+    await fetch(`${API}/gambar/upload/${id}`, {
+        method: 'POST',
+        headers: {
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        },
+        body: data
+    }).then(async(j) => {
+        if (j.status == 200) {
+            blank_dlg.hide();
+            get_master_menu();
+        }
+        else {
+            const err = await j.text();
+            alert(err);
+            btn.style.display = 'inline-block';
+        }
+    }).catch(err => {
+        alert(err);
+    })
 }
 
 async function fn_master_kategori() {
