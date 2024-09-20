@@ -149,7 +149,8 @@ async function get_daftar_menu(dvc) {
     dvc.innerHTML = `<div id="daftar_menu" class="d-flex flex-row overflow-auto flex-wrap" style="max-height: 100%"></div>`;
     let dv = document.getElementById('daftar_menu');
     sale_prg.style.display = 'inline-block';
-    await fetch(`${API}/menu`, {
+    let time = Date.now();
+    await fetch(`${API}/menu/daftar/${time}`, {
         method: 'GET',
         headers: {
             'Content-Type' : 'application/json',

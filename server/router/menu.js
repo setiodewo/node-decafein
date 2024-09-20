@@ -11,32 +11,6 @@ import fs from 'fs';
 // middleware validasi token
 router.use(validate_token);
 
-router.get('/', async(req, res) => {
-    //let offset = req.headers.page * conf.max_row;
-    try {
-        var kategori = (req.headers.kategori == null || req.headers.kategori == '')? '' : `and m.categoryId='${req.headers.kategori}'`;
-        const [r, f] = await db.query(`select m.*, mc.name as categoryName
-            from menu m
-            left outer join menu_category mc on mc.id = m.categoryId
-            where m.cafeId=? ${kategori}
-            order by m.name`,
-            [req.headers.cafe]);
-        r.forEach(async(e, i) => {
-            if (fs.existsSync(`${conf.upload_folder}/${e.id}`)) {
-                r[i].img = `foto/${e.id}`
-            } else {
-                r[i].img = conf.default_img;
-            }
-        })
-        res.send({
-            "ok": r.length,
-            "data": r
-        });
-    } catch(err) {
-        res.status(500).send(err.message);
-    }
-});
-
 router.get('/kategori', async(req, res) => {
     try {
         const [r, f] = await db.query(`select id, name, icon, active from menu_category where cafeId=? order by id`,
@@ -149,6 +123,35 @@ router.post('/simpankategori', async(req, res) => {
             ]);
         res.send({ ok: 1, message: r.info });
     }
-})
+});
+
+router.get('/daftar/:time', async(req, res) => {
+    //let offset = req.headers.page * conf.max_row;
+    try {
+        var kategori = (req.headers.kategori == null || req.headers.kategori == '')? '' : `and m.categoryId='${req.headers.kategori}'`;
+        const [r, f] = await db.query(`select m.*, mc.name as categoryName
+            from menu m
+            left outer join menu_category mc on mc.id = m.categoryId
+            where m.cafeId=? ${kategori}
+            order by m.name`,
+            [req.headers.cafe]);
+        r.forEach(async(e, i) => {
+            let filenya = `${conf.upload_folder}/${e.id}`;
+            if (fs.existsSync(filenya)) {
+                //let created = fs.statSync(filenya).birthtimeMs;
+                let created = Date.now();
+                r[i].img = `foto/${e.id}?x=${created}`;
+            } else {
+                r[i].img = conf.default_img;
+            }
+        })
+        res.send({
+            "ok": r.length,
+            "data": r
+        });
+    } catch(err) {
+        res.status(500).send(err.message);
+    }
+});
 
 export default router;

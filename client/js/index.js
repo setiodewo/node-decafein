@@ -208,7 +208,8 @@ async function fn_simpan_menu(btn) {
 async function get_master_menu() {
     let opsi = document.getElementById("opsi_kategori").value;
     let mm_data = document.getElementById("mm_data");
-    mm_data.innerHTML = await fetch(`${API}/menu`, {
+    let time = Date.now();
+    mm_data.innerHTML = await fetch(`${API}/menu/daftar/${time}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -268,7 +269,7 @@ function render_master_menu(data) {
 async function fn_upload_gambar_menu(btn, id) {
     let frm_upload = await fetch_static('./static/frm_upload.html');
     const tombol = `
-        <button type="button" class="btn btn-primary" value="Upload" onclick="return go_upload_file(this, ${id})">Upload</button>
+        <button type="button" class="btn btn-primary" value="Upload" onclick="return go_upload_file(this, ${id})" onsubmit="return false">Upload</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
     show_modal('Upload Foto Menu', frm_upload, tombol);
     blank_prg.style.display = 'none';
@@ -280,8 +281,15 @@ async function go_upload_file(btn, id) {
     const max_size = 2 * 1024 * 1024;
     let frm = document.getElementById('frm_upload_file');
     let f = frm.elements['namafile'];
+    if (f.files.length == 0) {
+        alert('Pilih gambar terlebih dahulu!');
+        btn.style.display = 'inline-block';
+        return false;
+    }
+
     if (f.files && f.files.length == 1 && f.files[0].size > max_size) {
         alert(`Ukuran gambar tidak boleh lebih dari ${max_size}`);
+        btn.style.display = 'inline-block';
         return false;
     }
     const data = new FormData();
