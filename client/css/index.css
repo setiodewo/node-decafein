@@ -13,6 +13,11 @@
     object-fit: cover;
 }
 
+.menu-img-view {
+    width: 100%;
+    object-fit: scale-down;
+}
+
 .menu-thumbnail {
     height: 48px;
     width: 48px;

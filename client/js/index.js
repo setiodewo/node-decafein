@@ -259,11 +259,18 @@ function render_master_menu(data) {
                 <i class="bi-cloud-upload"></i>
             </a>
         </td>
-        <td class="align-middle" style="width: 50px;"><img src="${r.img}" class="menu-thumbnail"></td>
+        <td class="align-middle" style="width: 50px;">
+            <a href='#' onclick="fn_lihat_foto('${r.name}', '${r.img}')"><img src="${r.img}" class="menu-thumbnail"></a>
+        </td>
         <td class="align-middle">${aktif}</td>
         </tr>`;
     });
     return `${ret}</table>`;
+}
+
+function fn_lihat_foto(name, url) {
+    show_modal(name == ''? 'Gambar' : name, `<img src="${url}" class='menu-img-view'>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`);
+    blank_prg.style.display = 'none';
 }
 
 async function fn_upload_gambar_menu(btn, id) {

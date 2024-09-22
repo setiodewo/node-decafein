@@ -177,7 +177,7 @@ async function get_daftar_menu(dvc) {
                             <!--
                             <div class="card-header">${m.categoryName}</div>
                             -->
-                            <img src="${m.img}" class="card-img-top menu-img">
+                            <img src="${m.img}" class="card-img-top menu-img" onclick="fn_lihat_foto('${m.name}', '${m.img}')" style="cursor: pointer;">
                             <div class="card-body menu-title">
                                 <p class="card-text">${m.name}</p>
                             </div>
