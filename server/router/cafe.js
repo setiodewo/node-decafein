@@ -47,6 +47,7 @@ router.post('/simpan', async(req, res) => {
                 zipCode = ?,
                 lat = ?,
                 lng = ?,
+                url = ?,
                 active = ?
                 where id = ?`, [
                     req.body.name,
@@ -57,13 +58,14 @@ router.post('/simpan', async(req, res) => {
                     req.body.zipCode,
                     req.body.lat == '' ? '0' : req.body.lat,
                     req.body.lng == '' ? '0' : req.body.lng,
+                    req.body.url,
                     req.body.active,
                     req.body.id
                 ]);
             res.send({ ok: r.affectedRows, msg: r.info });
         } else {
             // TODO: INSERT new cafe
-            res.send(500).send({ ok: 0, message: 'Belum diimplementasikan!'});
+            res.send(500).send({ ok: 0, message: 'Belum diimplementasikan!', data: req.body});
         }
     } catch(err) {
         res.status(500).send({ ok: 0, message: err.message });

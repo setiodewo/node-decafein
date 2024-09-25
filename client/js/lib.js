@@ -1,5 +1,17 @@
 // Author : Emanuel Setio Dewo, 08/09/2024
 
+const esc = {
+    _reset : '\x1B@',
+    _center: '\x1Ba\x01',
+    _left: '\x1Ba\x00',
+    _big: '\x1D!\x11',
+    _normal: '\x1D!\x00',
+    _boldOn : "\x1b\x45\x01",
+    _boldOff : "\x1b\x45\x00",
+    _grs:  '--------------------------------\n',
+    _grs2: '================================\n'
+}
+
 async function fetch_static(f) {
     var hasil = '';
     await fetch(f).then(t => t.text()).then(t => {
@@ -89,3 +101,6 @@ function opsi_bulan() {
     });
     return opt;
 }
+
+const padBoth = (str, length, char = ' ') =>
+    str.padStart((str.length + length) / 2, char).padEnd(length, char);

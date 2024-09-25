@@ -75,6 +75,8 @@ create table cafe (
 insert into cafe values
 ('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', '', '', 1, 1, now());
 
+alter table cafe add column url varchar(128) after lng;
+
 create table user_cafe (
     id int auto_increment primary key,
     userId int,
@@ -240,6 +242,30 @@ create table sale_payment(
     index(saleId),
     index(cafeId),
     index(paymentType),
+    index(createdBy)
+);
+
+create table printer_type (
+    id int primary key,
+    name varchar(128)
+);
+
+insert into printer_type values
+(1, 'Printer Thermal Kasir'),
+(2, 'Printer Thermal Dapur'),
+(3, 'Printer Thermal Kiosk');
+
+create table printer(
+    id bigint auto_increment primary key,
+    cafeId varchar(16),
+    name varchar(128),
+    printerType smallint default 1,
+    url text,
+    token varchar(128),
+    createdBy int,
+    createdAt datetime,
+    active smallint,
+    index(cafeId),
     index(createdBy)
 );
 

@@ -10,6 +10,8 @@ let sale_tgl = '';
 let sale_cari = '';
 let sale_prg;
 let payment_type = [];
+let printer_kasir = {};
+
 const max_row = 10;
 
 async function fn_penjualan() {
@@ -20,6 +22,7 @@ async function fn_penjualan() {
     init_tab.click();
     init_sales_type();
     init_payment_type();
+    printer_kasir = await get_printer(1);
 }
 
 async function fn_sales_tab(tab) {
@@ -768,9 +771,103 @@ async function fn_delete_sale() {
 }
 
 async function fn_print_struk() {
-    var a = window.open('', '', "height=900, width=800");
-    a.document.write('<html>');
-    a.document.write('<body>Test pencetakan</body>');
-    a.document.write('</html>');
-    a.print();
+    const frm = document.getElementById('frm_sale_hdr');
+    if (frm.elements['id'].value == null || frm.elements['id'].value == '') {
+        return;
+    }
+
+    let data = await ambil_data_sales(frm.elements['id'].value);
+    let hdr = data.hdr;
+    let itm = data.item;
+    let pay = data.pay;
+
+    let struk = `${esc._reset}${esc._center}${esc._big}${cafe.name}${esc._normal}\n` +
+        `${cafe.address}\n${cafe.city} ${cafe.zipCode}\n` + esc._left + esc._grs + 
+        'Nomor: ' + String(hdr.id).padEnd(9, ' ') +
+            `${hdr.Tanggal} ${hdr.Jam}\n` +
+        'Kasir: ' + String(hdr.userName).padEnd(15, ' ') +
+            String(hdr.typeName).padStart(10, ' ') + "\n" + esc._grs;
+    struk += 'A/N. : ' + String(hdr.saleTo).substring(0, 32) + "\n" + esc._grs;
+    struk += String('Pembelian').padEnd(16, ' ') +
+        String('Amount').padStart(16, ' ') + "\n" + esc._grs2;
+    itm.forEach(i => {
+        let amount = i.quantity * (i.basePrice - (i.basePrice * i.discount / 100));
+        struk += `${String(i.menuName).substring(0, 32)}\n`;
+        let diskon = (i.discount == 0) ? String('').padEnd(5, ' ') : String('-'+i.discount + '%').padStart(5, ' ');
+        struk += '  ' +
+            String(i.quantity + 'x').padEnd(5, ' ') +
+            String(Number(i.basePrice).toLocaleString()).padEnd(9, ' ') +
+            diskon +
+            String(Number(amount).toLocaleString()).padStart(11, ' ') +
+            "\n\n";
+    });
+
+    let grandTotal = Number(hdr.totalAmount) - Number(hdr.totalDiscount);
+    struk += esc._grs2;
+    // Jika ada diskon
+    if (Number(hdr.totalDiscount) > 0) {
+        struk += String('Total Pembelian:').padStart(16, ' ') +
+        String(Number(hdr.totalAmount).toLocaleString()).padStart(16, ' ') + "\n" +
+        String('Total Diskon :').padStart(16, ' ') +
+        String(Number(hdr.totalDiscount).toLocaleString()).padStart(16, ' ') + "\n";
+    }
+    // Grand total
+    struk += String('Grand Total :').padStart(16, ' ') +
+        String(Number(grandTotal).toLocaleString()).padStart(16, ' ') + "\n\n";
+    
+    // Jika sudah ada pembayaran
+    let byr = 0;
+    if (pay.length > 0) {
+        struk += padBoth('PEMBAYARAN', 32, '-') + "\n";
+        pay.forEach((p, idx) => {
+            byr += Number(p.grandTotal) + Number(p.paymentCharge);
+            let paymentCharge = '';
+            if (Number(p.payCharge) > 0) {
+                paymentCharge = String('Charge :').padStart(16, ' ') +
+                String(Number(p.payCharge).toLocaleString()).padStart(16, ' ') + "\n";
+            }
+            let paymentChange = '';
+            if (Number(p.payChange) > 0) {
+                paymentChange = String('Kembalian :').padStart(16, ' ') +
+                String(Number(p.payChange).toLocaleString()).padStart(16, ' ') + "\n";
+            }
+            struk += esc._boldOn +
+                String(`${p.paymentName}`).substring(0, 32) + esc._boldOff + "\n" +
+                paymentCharge +
+                String('Pembayaran :').padStart(16, ' ') +
+                String(Number(p.payAmount).toLocaleString()).padStart(16, ' ') + "\n" +
+                paymentChange;
+        })
+    }
+        
+    // Penutup
+    struk += "\n" + esc._grs + "Terima kasih atas kunjungan Anda\n\n\n\n";
+
+    await fetch(`${printer_kasir.url}`, {
+        method: 'POST',
+        headers: {
+            token: printer_kasir.token
+        },
+        body: struk
+    }).then(t => t.text()).then(t => {
+        console.log(t);
+    }).catch(err => {
+        alert(err);
+    })
+}
+
+async function ambil_data_sales(id) {
+    return await fetch(`${API}/sale/data/${id}`, {
+        method: 'GET',
+        headers: {
+            'id': profile.id,
+            'token': profile.token,
+            'cafe': cafe.id
+        }
+    }).then(j => j.json()).then(ret => {
+        return ret;
+    }).catch(err => {
+        alert(err);
+    });
+    return null;
 }

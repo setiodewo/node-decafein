@@ -1,0 +1,25 @@
+<form id="frm_edit_printer" name="frm_edit_printer">
+    <input type="hidden" id="id" value="0">
+    <input type="hidden" id="md" value="1">
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Nama Printer</label>
+        <input type="text" id="name" class="form-control" placeholder="Nama Printer" required>
+    </div>
+    <div class="mb-3">
+        <label for="name" class="form-label">URL</label>
+        <input type="text" id="url" class="form-control" placeholder="URL Printer" required>
+    </div>
+    <div class="mb-3">
+        <label for="name" class="form-label">Token</label>
+        <input type="text" id="token" class="form-control" placeholder="Token Printer" required>
+    </div>
+    <div class="mb-3">
+        <label for="printerType" class="form-label">Tipe</label>
+        <select id="printerType" class="form-control"></select>
+    </div>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="active">
+        <label class="form-check-label" for="active" style="margin-left: 8px;">Aktif?</label>
+    </div>
+</form>

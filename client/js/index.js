@@ -100,6 +100,40 @@ async function get_opsi_level() {
     })
 }
 
+async function get_opsi_printer_type() {
+    return await fetch(`${API}/printer/type`, {
+        method: 'GET',
+        headers: {
+            'id': profile.id,
+            'token': profile.token,
+            'cafe': cafe.id
+        }
+    }).then(j => j.json()).then(opsi => {
+        let o = `<option value=''></option>`;
+        opsi.forEach(k => {
+            o += `<option value='${k.id}'>${k.name}</option>`;
+        });
+        return o;
+    }).catch(err => {
+        console.error(err);
+    })
+}
+
+async function get_printer(type) {
+    return await fetch(`${API}/printer/satu/${type}`, {
+        method: 'GET',
+        headers: {
+            'id' : profile.id,
+            'token': profile.token,
+            'cafe': cafe.id
+        }
+    }).then(j => j.json()).then(t => {
+        return t;
+    }).catch(err => {
+        console.error(err);
+    });
+}
+
 async function fn_master_menu() {
     main.innerHTML = `
     <div id='mm_panel' class="btn-toolbar" style="padding: 16px;">
@@ -637,6 +671,7 @@ async function fn_simpan_cafe(btn) {
 
     btn.style.display = 'none';
     blank_prg.display = 'inline-block';
+    let param = serialize_form('frm_edit_cafe');
     await fetch(`${API}/cafe/simpan`, {
         method: 'POST',
         headers: {
@@ -645,13 +680,143 @@ async function fn_simpan_cafe(btn) {
             'token' : profile.token,
             'cafe' : cafe.id
         },
-        body: JSON.stringify(serialize_form('frm_edit_cafe'))
+        body: JSON.stringify(param)
     }).then(j => j.json()).then(ret => {
         if (ret.ok == 1) {
             blank_dlg.hide();
             get_master_cafe();
+            if (param.id == cafe.id) {
+                cafe = param;
+                localStorage.setItem('cafe', JSON.stringify(cafe));
+            }
         } else {
             alert(ret.message);
+        }
+    }).catch(err => {
+        alert(err);
+    });
+    btn.style.display = 'inline-block';
+    blank_prg.style.display = 'none';
+}
+
+async function fn_master_printer() {
+    main.innerHTML = `
+        <div class="mt-3 mb-3 input-group">
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <button class="btn btn-outline-secondary"
+                onclick="fn_edit_printer()">
+                <i class="bi bi-plus-lg"></i>
+                Tambah
+            </button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Nama</th>
+                <th>Tipe</th>
+                <th>URL</th>
+                <th>Aktif</th>
+            </thead>
+            <tbody id="table_master_printer"></tbody>
+        </table>`;
+    get_master_printer();
+}
+
+async function get_master_printer() {
+    let tbl = document.getElementById('table_master_printer');
+    tbl.innerHTML = '';
+    await fetch(`${API}/printer`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => j.json()).then(printer => {
+        printer.forEach(p => {
+            let aktif = (p.active == 1)? "<i class='bi bi-check-circle-fill' style='color: green;'></i>" : "<i class='bi bi-dash-circle-fill' style='color: red;'></i>";
+            tbl.insertAdjacentHTML('beforeend', `
+                <tr>
+                <td>
+                    <button class="btn btn-sm btn-secondary"
+                        data-id="${p.id}"
+                        onclick="fn_edit_printer(${p.id})">
+                    <i class="bi-pencil"></i>
+                    </button>
+                </td>
+                <td class="align-middle">${p.name}</td>
+                <td class="align-middle">${p.typeName}</td>
+                <td class="align-middle">${p.url}</td>
+                <td class="align-middle">${aktif}</td>
+                </tr>`);
+        });
+    })
+}
+
+async function fn_edit_printer(id) {
+    const frm = await fetch_static('./static/edit_printer.html');
+    const btn = `
+        <button type="button" class="btn btn-primary" onclick="fn_simpan_printer(this)">
+            <i class="bi bi-floppy"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal('Edit Tipe Pembayaran', frm, btn);
+
+    let opt = await get_opsi_printer_type();
+    document.getElementById('frm_edit_printer').elements['printerType'].innerHTML = opt;
+    console.log('OPT', opt);
+
+    if (id == undefined || id == null) {
+        blank_dlg_title.innerHTML = "Tambah Printer";
+    } else {
+        await fetch(`${API}/printer/edit/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'id': profile.id,
+                'token': profile.token,
+                'cafe': cafe.id
+            }
+        }).then(j => j.json()).then(ret => {
+            populate_form('frm_edit_printer', ret);
+            let _active = document.getElementById('frm_edit_printer').elements['active'];
+            if (ret.active == 0) _active.checked = false;
+            else _active.checked = true;
+        })
+    }
+    blank_prg.style.display = 'none';
+}
+
+async function fn_simpan_printer(btn) {
+    // validasi dulu
+    if (invalid_input('frm_edit_printer', 'name', 'Nama printer harus diisi!')) return;
+    if (invalid_input('frm_edit_printer', 'url', 'URL printer harus diisi!')) return;
+
+    btn.style.display = 'none';
+    blank_prg.style.display = 'inline-block';
+
+    var par = serialize_form('frm_edit_printer');
+    par['active'] = document.getElementById('frm_edit_printer').elements['active'].checked ? 1 : 0;
+
+    await fetch(`${API}/printer/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'id': profile.id,
+            'token': profile.token,
+            'cafe': cafe.id
+        },
+        body: JSON.stringify(par)
+    }).then(j => j.json()).then(ret => {
+        if (ret.ok == 0) {
+            alert(ret.message);
+        } else {
+            blank_dlg.hide();
+            get_master_printer();
         }
     }).catch(err => {
         alert(err);
@@ -663,7 +828,7 @@ async function fn_simpan_cafe(btn) {
 function fn_master_paytype() {
     main.innerHTML = `
         <div class="mt-3 mb-3 input-group">
-            <button class="btn btn-outline-secondary">
+            <button class="btn btn-outline-secondary" onclick="get_master_paytype()">
                 <i class="bi bi-arrow-clockwise"></i> Refresh
             </button>
             <button class="btn btn-outline-secondary"

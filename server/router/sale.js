@@ -236,6 +236,36 @@ router.post('/pay', async(req, res) => {
     }
 });
 
+router.get('/data/:id', async(req, res) => {
+    const [r, f] = await db.query(`select h.*,
+        date_format(h.saleDate, '%d/%m/%Y') as Tanggal,
+        date_format(h.saleDate, '%H:%i') as Jam,
+        u.userName, t.name as typeName
+        from sale_hdr h
+        left outer join sale_type t on t.id = h.saleType
+        left outer join user u on u.id = h.createdBy
+        where h.cafeId = ? and h.id = ?`,
+        [ req.headers.cafe, req.params.id ]);
+    if (r.length == 0) {
+        res.status(500).send('Data tidak ditemukan!');
+        return;
+    }
+
+    const [i, fi] = await db.query(`select si.*,
+        m.name as menuName
+        from sale_item si
+            left outer join menu m on m.id = si.itemId
+        where si.saleId = ?`,
+        [ req.params.id ]);
+    
+    const [p, fp] = await db.query(`select sp.*, t.name as paymentName
+        from sale_payment sp
+        left outer join payment_type t on t.id = sp.paymentType
+        where sp.saleId = ?`,
+        [ req.params.id]);
+    res.send({ ok: r.length, hdr: r[0], item: i, pay: p });
+})
+
 router.get('/', async(req, res) => {
     try {
         //new Date().toISOString().substring(0, 10)
