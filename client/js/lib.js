@@ -102,5 +102,20 @@ function opsi_bulan() {
     return opt;
 }
 
+function html_alert(jns, msg) {
+    return `<div class='alert alert-${jns} alert-dismissible fade show m-3' role="alert">
+        <div>${msg}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+}
+
+function timer_alert(detik) {
+    setTimeout(() => {
+        div_alert.childNodes.forEach(child => {
+            div_alert.removeChild(child);
+        })
+    }, detik * 1000);
+}
+
 const padBoth = (str, length, char = ' ') =>
     str.padStart((str.length + length) / 2, char).padEnd(length, char);

@@ -62,6 +62,8 @@ create table cafe (
     zipCode varchar(64),
     lat varchar(128),
     lng varchar(128),
+    url varchar(128),
+    phone varchar(64),
     active smallint default 1,
     createdBy int,
     createdAt datetime,
@@ -76,6 +78,7 @@ insert into cafe values
 ('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', '', '', 1, 1, now());
 
 alter table cafe add column url varchar(128) after lng;
+alter table cafe add column phone varchar(64) after url;
 
 create table user_cafe (
     id int auto_increment primary key,

@@ -773,6 +773,9 @@ async function fn_delete_sale() {
 async function fn_print_struk() {
     const frm = document.getElementById('frm_sale_hdr');
     if (frm.elements['id'].value == null || frm.elements['id'].value == '') {
+        let alert = html_alert('info', 'Tidak ada yang perlu dicetak')
+        div_alert.insertAdjacentHTML('beforeend', alert);
+        timer_alert(5);
         return;
     }
 
@@ -852,7 +855,8 @@ async function fn_print_struk() {
     }).then(t => t.text()).then(t => {
         console.log(t);
     }).catch(err => {
-        alert(err);
+        div_alert.insertAdjacentHTML('beforeend', html_alert('danger', err));
+        timer_alert(5);
     })
 }
 

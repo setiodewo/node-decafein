@@ -11,6 +11,8 @@ const blank_dlg_body = document.getElementById('blank_dlg_body');
 const blank_dlg_footer = document.getElementById('blank_dlg_footer');
 const blank_prg = document.getElementById('blank_prg');
 
+const div_alert = document.getElementById('div_alert');
+
 let lap_bulan = moment().month();
 let lap_tahun = moment().year();
 let chartContext = null;

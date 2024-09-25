@@ -48,6 +48,7 @@ router.post('/simpan', async(req, res) => {
                 lat = ?,
                 lng = ?,
                 url = ?,
+                phone = ?,
                 active = ?
                 where id = ?`, [
                     req.body.name,
@@ -59,6 +60,7 @@ router.post('/simpan', async(req, res) => {
                     req.body.lat == '' ? '0' : req.body.lat,
                     req.body.lng == '' ? '0' : req.body.lng,
                     req.body.url,
+                    req.body.phone,
                     req.body.active,
                     req.body.id
                 ]);
