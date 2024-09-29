@@ -17,9 +17,9 @@ router.get('/sales1', async(req, res) => {
     var thn = (req.headers.thn.length == 2)? req.headers.thn.padStart('20') : req.headers.thn;
     const [r, f] = await db.query(`
         select date_format(h.saleDate, '%d') as x,
-        sum((i.basePrice * i.quantity) - amountDiscount - amountTax) as NET,
+        sum((i.basePrice * i.quantity) - amountDiscount) as NET,
         sum(i.COGS * i.quantity) as COGS,
-        sum(((i.basePrice * i.quantity) - amountDiscount - amountTax) - (i.COGS * i.quantity)) as PROFIT
+        sum(((i.basePrice * i.quantity) - amountDiscount) - (i.COGS * i.quantity)) as PROFIT
 
         from sale_hdr h
         left outer join sale_item i on i.saleId = h.id
@@ -86,7 +86,7 @@ router.get('/sales1', async(req, res) => {
 router.get('/sales12', async(req, res) => {
     var thn = (req.headers.thn.length == 2)? req.headers.thn.padStart(2, '20') : req.headers.thn;
     const [r, f] = await db.query(`select MONTH(h.saleDate) as x,
-        sum(h.totalAmount - h.totalDiscount - h.totalTax) as JML
+        sum(h.totalAmount - h.totalDiscount) as JML
         from sale_hdr h
         where h.cafeId = ? and YEAR(h.saleDate) = ? and h.statusId > 0
         group by 1`, 
@@ -130,7 +130,7 @@ router.get('/salescat', async(req, res) => {
     var thn = (req.headers.thn.length == 2)? req.headers.thn.padStart('20') : req.headers.thn;
     const [r, f] = await db.query(`select date_format(h.saleDate, '%d') as x,
         c.id as categoryId, c.name as categoryName,
-        sum(((i.basePrice * i.quantity) - amountDiscount - amountTax) - (i.COGS * i.quantity)) as PROFIT
+        sum(((i.basePrice * i.quantity) - amountDiscount) - (i.COGS * i.quantity)) as PROFIT
         from sale_hdr h
         left outer join sale_item i on i.saleId = h.id
         left outer join menu_category c on c.id = i.categoryId
@@ -186,7 +186,7 @@ router.get('/perkasir', async(req, res) => {
         left outer join user u on u.id = h.createdBy
         where h.cafeId = ? and LEFT(h.saleDate, 7) = ?`, [ req.headers.cafe, `${thn}-${bln}` ]);
     const [r, f] = await db.query(`select u.userName, date_format(h.saleDate, '%d') as tgl,
-        sum(totalAmount - totalDiscount - totalTax) as Total
+        sum(totalAmount - totalDiscount) as Total
         from sale_hdr h
         left outer join user u on u.id = h.createdBy
         where h.cafeId = ? and LEFT(h.saleDate, 7) = ?

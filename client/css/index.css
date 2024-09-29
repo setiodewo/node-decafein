@@ -30,3 +30,54 @@
     width: 100%;
     z-index: 1001;
 }
+
+.space0 {
+    height: 80px;
+    width: 80px;
+    padding: 8px !important;
+    margin: 0 auto !important;
+}
+
+.space1 {
+    height: 100%;
+    width: 100%;
+    border: 1px solid white;
+    border-radius: 8px;
+    text-align: center;
+    padding: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.space1 a {
+    text-decoration: none;
+    color: white;
+    text-shadow: 1px 1px 4px silver;
+}
+
+.space-left {
+    border-left: 1px solid rgba(0, 255, 0, 0);
+}
+
+.space-left:before {
+    content: "👤";
+    position: relative;
+    display: block;
+    float: left;
+    top: 30%;
+    left: -4px;
+    color: green;
+}
+
+.space-right {
+    border-right: 1px solid rgba(0, 255, 0, 0);
+}
+
+.space-right:after {
+    content: "👤";
+    position: relative;
+    display: block;
+    float: right;
+    top: 30%;
+    right: -4px;
+    color: green;
+}

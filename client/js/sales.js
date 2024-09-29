@@ -14,6 +14,18 @@ let printer_kasir = {};
 
 const max_row = 10;
 
+function struk_header() {
+    return `\n${esc._reset}${esc._center}${esc._big}${cafe.name}${esc._normal}\n` +
+        `${cafe.address}\n${cafe.city} ${cafe.zipCode}\n${cafe.url}\n` + esc._left + esc._grs;
+}
+
+function struk_footer() {
+    return "\n" + esc._grs + esc._center + 
+        "Terima kasih atas kunjungan Anda\n" +
+        "Kirimkan masukan atau kritik ke \n" +
+        `WA ${cafe.phone}\n\n\n\n`;
+}
+
 async function fn_penjualan() {
     main.innerHTML = await fetch_static('./static/sales.html');
     sale_prg = document.getElementById('sale_prg');
@@ -23,6 +35,7 @@ async function fn_penjualan() {
     init_sales_type();
     init_payment_type();
     printer_kasir = await get_printer(1);
+    document.getElementById('taxName').innerHTML = cafe.taxName;
 }
 
 async function fn_sales_tab(tab) {
@@ -224,6 +237,7 @@ async function fn_tambah_item(btn) {
         'currency': btn.dataset.currency,
         'basePrice' : btn.dataset.price,
         'COGS' : btn.dataset.cogs,
+        'tax' : cafe.tax,
         'quantity' : 1,
         'discount': 0,
         'notes' : ''
@@ -356,6 +370,7 @@ async function recalculate_sale(id) {
                 _totalTax : Number(ret.data.totalTax).toLocaleString(),
                 _grandTotal : Number(ret.data.grandTotal).toLocaleString()
             }
+            console.log('ret', ret);
             populate_form('frm_sale_total', datanya);
             console.log('total', datanya);
         }
@@ -784,15 +799,14 @@ async function fn_print_struk() {
     let itm = data.item;
     let pay = data.pay;
 
-    let struk = `${esc._reset}${esc._center}${esc._big}${cafe.name}${esc._normal}\n` +
-        `${cafe.address}\n${cafe.city} ${cafe.zipCode}\n` + esc._left + esc._grs + 
+    let struk = struk_header() +
         'Nomor: ' + String(hdr.id).padEnd(9, ' ') +
             `${hdr.Tanggal} ${hdr.Jam}\n` +
         'Kasir: ' + String(hdr.userName).padEnd(15, ' ') +
-            String(hdr.typeName).padStart(10, ' ') + "\n" + esc._grs;
-    struk += 'A/N. : ' + String(hdr.saleTo).substring(0, 32) + "\n" + esc._grs;
+            esc._boldOn + String(hdr.typeName).padStart(10, ' ') + "\n" + esc._boldOff + esc._grs;
+    struk += esc._boldOn + 'a/n. : ' + String(hdr.saleTo).substring(0, 32) + "\n" + esc._boldOff + esc._grs;
     struk += String('Pembelian').padEnd(16, ' ') +
-        String('Amount').padStart(16, ' ') + "\n" + esc._grs2;
+        String('Jumlah').padStart(16, ' ') + "\n" + esc._grs2;
     itm.forEach(i => {
         let amount = i.quantity * (i.basePrice - (i.basePrice * i.discount / 100));
         struk += `${String(i.menuName).substring(0, 32)}\n`;
@@ -805,18 +819,25 @@ async function fn_print_struk() {
             "\n\n";
     });
 
-    let grandTotal = Number(hdr.totalAmount) - Number(hdr.totalDiscount);
+    let subTotal = Number(hdr.totalAmount) - Number(hdr.totalDiscount);
     struk += esc._grs2;
     // Jika ada diskon
+    /*
     if (Number(hdr.totalDiscount) > 0) {
-        struk += String('Total Pembelian:').padStart(16, ' ') +
-        String(Number(hdr.totalAmount).toLocaleString()).padStart(16, ' ') + "\n" +
-        String('Total Diskon :').padStart(16, ' ') +
-        String(Number(hdr.totalDiscount).toLocaleString()).padStart(16, ' ') + "\n";
+        struk += String('Total Pembelian :').padStart(18, ' ') +
+        String(Number(hdr.totalAmount).toLocaleString()).padStart(14, ' ') + "\n" +
+        String('Total Diskon :').padStart(18, ' ') +
+        String('-'+Number(hdr.totalDiscount).toLocaleString()).padStart(14, ' ') + "\n";
     }
+    */
     // Grand total
-    struk += String('Grand Total :').padStart(16, ' ') +
-        String(Number(grandTotal).toLocaleString()).padStart(16, ' ') + "\n\n";
+    let grandTotal = subTotal + Number(hdr.totalTax);
+    struk += String('Sub Total :').padStart(18, ' ') +
+        String(Number(subTotal).toLocaleString()).padStart(14, ' ') + "\n";
+    struk += String(cafe.taxName + ' :').padStart(18, ' ') +
+        String(Number(hdr.totalTax).toLocaleString()).padStart(14, ' ') + "\n";
+    struk += String('Grand Total :').padStart(18, ' ') +
+        String(Number(grandTotal).toLocaleString()).padStart(14, ' ') + "\n\n";
     
     // Jika sudah ada pembayaran
     let byr = 0;
@@ -825,26 +846,26 @@ async function fn_print_struk() {
         pay.forEach((p, idx) => {
             byr += Number(p.grandTotal) + Number(p.paymentCharge);
             let paymentCharge = '';
-            if (Number(p.payCharge) > 0) {
-                paymentCharge = String('Charge :').padStart(16, ' ') +
-                String(Number(p.payCharge).toLocaleString()).padStart(16, ' ') + "\n";
+            if (Number(p.paymentCharge) > 0) {
+                paymentCharge = String('Charge :').padStart(18, ' ') +
+                String(Number(p.paymentCharge).toLocaleString()).padStart(14, ' ') + "\n";
             }
             let paymentChange = '';
             if (Number(p.payChange) > 0) {
-                paymentChange = String('Kembalian :').padStart(16, ' ') +
-                String(Number(p.payChange).toLocaleString()).padStart(16, ' ') + "\n";
+                paymentChange = String('Kembalian :').padStart(18, ' ') +
+                String(Number(p.payChange).toLocaleString()).padStart(14, ' ') + "\n";
             }
             struk += esc._boldOn +
                 String(`${p.paymentName}`).substring(0, 32) + esc._boldOff + "\n" +
                 paymentCharge +
-                String('Pembayaran :').padStart(16, ' ') +
-                String(Number(p.payAmount).toLocaleString()).padStart(16, ' ') + "\n" +
+                String('Pembayaran :').padStart(18, ' ') +
+                String(Number(p.payAmount).toLocaleString()).padStart(14, ' ') + "\n" +
                 paymentChange;
         })
     }
         
     // Penutup
-    struk += "\n" + esc._grs + "Terima kasih atas kunjungan Anda\n\n\n\n";
+    struk += struk_footer();
 
     await fetch(`${printer_kasir.url}`, {
         method: 'POST',
@@ -856,7 +877,7 @@ async function fn_print_struk() {
         console.log(t);
     }).catch(err => {
         div_alert.insertAdjacentHTML('beforeend', html_alert('danger', err));
-        timer_alert(5);
+        timer_alert(10);
     })
 }
 

@@ -39,6 +39,7 @@ import sale from "./router/sale.js";
 import laporan from "./router/laporan.js";
 import gambar from "./router/gambar.js";
 import printer from "./router/printer.js";
+import cws from "./router/cws.js";
 
 app.use("/login", login);
 app.use("/menu", menu);
@@ -48,6 +49,7 @@ app.use("/sale", sale);
 app.use("/lap", laporan);
 app.use("/gambar", gambar);
 app.use('/printer', printer);
+app.use('/cws', cws);
 
 app.get('/', (req, res) => {
     res.redirect('../client/index.html');

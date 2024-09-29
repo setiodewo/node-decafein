@@ -64,6 +64,8 @@ create table cafe (
     lng varchar(128),
     url varchar(128),
     phone varchar(64),
+    taxName varchar(128),
+    tax decimal(10, 2),
     active smallint default 1,
     createdBy int,
     createdAt datetime,
@@ -77,8 +79,11 @@ create table cafe (
 insert into cafe values
 ('DECAFEIN', 1, 'Swatizen Cafe', 'Jl. Hartono Raya', 'Tangerang', 'Banten', 'Indonesia', '15117', '', '', 1, 1, now());
 
+# untuk penambahan field2
+
 alter table cafe add column url varchar(128) after lng;
 alter table cafe add column phone varchar(64) after url;
+alter table cafe add column taxName varchar(128) after phone, add column tax decimal(10, 2) after taxName;
 
 create table user_cafe (
     id int auto_increment primary key,
@@ -282,4 +287,30 @@ where h.cafeId = 'DECAFEIN' and LEFT(h.saleDate, 7) = '2024-09' and h.statusId >
 group by 1, 2;
 
 
+create table space (
+    id bigint auto_increment primary key,
+    cafeId varchar(16),
+    name varchar(128),
+    floor int,
+    rowNum int,
+    colNum int,
+    rowSize int,
+    colSize int,
+    leftright smallint,
+    capacity int,
+    description text,
+    facility text,
+    createdBy int,
+    createdAt datetime,
+    active smallint,
+    index(cafeId),
+    index(rowNum),
+    index(colNum)
+);
 
+insert into space values
+(1, 'DECAFEIN', 'Ruang Meeting', 1, 1, 1, 4, 10, 0, 10, 'Ruang Meeting Besar', 'Meja meeting, wifi, proyektor, whiteboard', 1, now(), 1),
+(2, 'DECAFEIN', 'A1', 1, 5, 1, 1, 1, 1, 1, 'A1', 'Wifi', 1, now(), 1),
+(3, 'DECAFEIN', 'A2', 1, 5, 3, 1, 1, 1, 1, 'A2', 'Wifi', 1, now(), 1),
+(4, 'DECAFEIN', 'A3', 1, 6, 3, 1, 1, 1, 1, 'A3', 'Wifi', 1, now(), 1)
+;

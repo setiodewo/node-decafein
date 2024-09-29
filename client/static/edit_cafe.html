@@ -48,6 +48,19 @@
             <input type="text" id="lng" class="form-control" placeholder="Longitude" required>
         </div>
     </div>
+    <div class="mb-3 row">
+        <div class="col">
+            <label for="taxName" class="form-label">Nama Pajak</label>
+            <input type="text" id="taxName" class="form-control" placeholder="Nama pajak: PPN/PB1" required>
+        </div>
+        <div class="col">
+            <label for="lat" class="form-label">Besaran Pajak</label>
+            <div class="input-group">
+            <input type="text" id="tax" class="form-control" placeholder="Berapa persen?" required>
+            <span class="input-group-text">%</span>
+            </div>
+        </div>
+    </div>
     <div class="mb-3 form-check form-switch" style="margin-top: 16px;">
         <input class="form-check-input" type="checkbox" role="switch" id="active">
         <label class="form-check-label" for="active" style="margin-left: 8px;">Aktif?</label>

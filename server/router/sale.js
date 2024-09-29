@@ -73,8 +73,8 @@ router.get('/edit/:id', async(req, res) => {
         format(h.totalAmount, 0) as _totalAmount,
         h.totalDiscount,
         format(h.totalDiscount, 0) as _totalDiscount,
-        h.totalAmount - h.totalDiscount as grandTotal,
-        format(h.totalAmount - h.totalDiscount, 0) as _grandTotal,
+        h.totalAmount - h.totalDiscount + h.totalTax as grandTotal,
+        format(h.totalAmount - h.totalDiscount + h.totalTax, 0) as _grandTotal,
         h.totalTax, 
         format(h.totalTax, 0) as _totalTax,
         h.totalPaid, h.statusId, s.name as statusName,
@@ -99,6 +99,10 @@ router.post('/additem/:saleId', async(req, res) => {
     var amountDiscount = 0;
     if (req.body.discount > 0) {
         amountDiscount = req.body.quantity * req.body.basePrice * req.body.discount / 100;
+    }
+    var amountTax = 0;
+    if (req.body.tax > 0) {
+        amountTax = (req.body.quantity * req.body.basePrice - amountDiscount) * req.body.tax / 100;
     }
     try {
         const [r, f] = await db.query(`insert into sale_item
@@ -126,14 +130,15 @@ router.post('/additem/:saleId', async(req, res) => {
                 req.body.quantity,
                 req.body.discount,
                 amountDiscount,
-                0,
-                0,
+                req.body.tax,
+                amountTax,
                 req.body.notes,
                 req.headers.id
             ]);
         // TODO: hitung total
         res.send({ ok: r.affectedRows, id: r.insertId, message: r.info });
     } catch(err) {
+        console.error('additem', err);
         res.status(500).send(err);;
     };
 });
@@ -149,13 +154,18 @@ router.get('/recalculate/:saleId', async(req, res) => {
             // tuliskan
             const [r1, f1] = await db.query(`update sale_hdr
                 set totalAmount = ?,
-                totalDiscount = ?
-                where id = ?`, [ r[0].totalAmount, Number(r[0].totalDiscount).toFixed(2), req.params.saleId ]);
+                totalDiscount = ?,
+                totalTax = ?
+                where id = ?`, [ 
+                    r[0].totalAmount, Number(r[0].totalDiscount).toFixed(2),
+                    r[0].totalTax,
+                    req.params.saleId
+                ]);
             res.send({ ok : r[0].length, data: { 
                 totalAmount: r[0].totalAmount, 
                 totalDiscount: r[0].totalDiscount,
                 totalTax: r[0].totalTax,
-                grandTotal: r[0].totalAmount - r[0].totalDiscount,
+                grandTotal: Number(r[0].totalAmount) - Number(r[0].totalDiscount) + Number(r[0].totalTax),
                 message: 'recalculate'
             } });
         } else {
@@ -275,7 +285,7 @@ router.get('/', async(req, res) => {
             '' : `and h.saleTo like '${req.headers.cari}%' `;
         let offset = req.headers.page * conf.max_row;
         const [r, f] = await db.query(`select h.*,
-            h.totalAmount - h.totalDiscount - h.totalTax as grandTotal,
+            h.totalAmount - h.totalDiscount + h.totalTax as grandTotal,
             date_format(h.saleDate, '%H:%i') as tgl,
             t.name as typeName, s.name as statusName
             from sale_hdr h
