@@ -56,6 +56,10 @@ router.post('/save', async(req, res) => {
             capacity = ?,
             description = ?,
             facility = ?,
+            priceHourly = ?,
+            priceDaily = ?,
+            priceMonthly = ?,
+            priceAnnually = ?,
             active = ?
             where cafeId = ? and id = ?`,
         [
@@ -69,6 +73,10 @@ router.post('/save', async(req, res) => {
             req.body.capacity,
             req.body.description,
             req.body.facility,
+            req.body.priceHourly,
+            req.body.priceDaily,
+            req.body.priceMonthly,
+            req.body.priceAnnually,
             req.body.active,
             req.headers.cafe, req.body.id 
         ]);
@@ -87,6 +95,10 @@ router.post('/save', async(req, res) => {
             capacity = ?,
             description = ?,
             facility = ?,
+            priceHourly = ?,
+            priceDaily = ?,
+            priceMonthly = ?,
+            priceAnnually = ?,
             createdBy = ?,
             createdAt = now(),
             active = ?`, 
@@ -102,6 +114,10 @@ router.post('/save', async(req, res) => {
             req.body.capacity,
             req.body.description,
             req.body.facility,
+            req.body.priceHourly,
+            req.body.priceDaily,
+            req.body.priceMonthly,
+            req.body.priceAnnually,
             req.headers.id,
             req.body.active
         ]);

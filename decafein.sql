@@ -300,6 +300,10 @@ create table space (
     capacity int,
     description text,
     facility text,
+    priceHourly decimal(10, 2),
+    priceDaily decimal(10,2),
+    priceMonthly decimal(10, 2),
+    priceAnnually decimal(10, 2),
     createdBy int,
     createdAt datetime,
     active smallint,
@@ -307,10 +311,3 @@ create table space (
     index(rowNum),
     index(colNum)
 );
-
-insert into space values
-(1, 'DECAFEIN', 'Ruang Meeting', 1, 1, 1, 4, 10, 0, 10, 'Ruang Meeting Besar', 'Meja meeting, wifi, proyektor, whiteboard', 1, now(), 1),
-(2, 'DECAFEIN', 'A1', 1, 5, 1, 1, 1, 1, 1, 'A1', 'Wifi', 1, now(), 1),
-(3, 'DECAFEIN', 'A2', 1, 5, 3, 1, 1, 1, 1, 'A2', 'Wifi', 1, now(), 1),
-(4, 'DECAFEIN', 'A3', 1, 6, 3, 1, 1, 1, 1, 'A3', 'Wifi', 1, now(), 1)
-;

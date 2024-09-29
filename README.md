@@ -4,6 +4,12 @@ Point of sales system for cafe, bakery, restaurant. Built with :
 1. Front End: HTML, JavaScript, Bootstrap. Print receipt to thermal printer.
 2. Back End: NodeJS, MySQL
 
+## Features
+
+## Other Project Links
+
+1. [Decafein Printer Server](https://github.com/setiodewo/decafein-printer)
+
 ## Installation
 
 (TODO)

@@ -1,7 +1,7 @@
 <form id="frm_edit_cws" name="frm_edit_cws">
     <input type="hidden" id="id">
     <input type="hidden" id="md" value="1">
-    <div class="mb-3 row">
+    <div class="row mb-1">
         <div class="col-md-6">
             <label for="name" class="form-label">Nama Coworking Space</label>
             <input type="text" id="name" class="form-control" required>
@@ -11,7 +11,7 @@
             <input type="number" id="floor" class="form-control" required>
         </div>
     </div>
-    <div class="mb-3 row">
+    <div class="row mb-1">
         <div class="col-md-6">
             <label for="rowNum" class="form-label">Terletak di baris ke</label>
             <input type="number" id="rowNum" class="form-control" required>
@@ -21,7 +21,7 @@
             <input type="number" id="colNum" class="form-control" required>
         </div>
     </div>
-    <div class="mb-3 row">
+    <div class="row mb-1">
         <div class="col-md-6">
             <label for="rowSize" class="form-label">Ukuran baris (dlm unit)</label>
             <input type="number" id="rowSize" class="form-control" value="1" required>
@@ -31,7 +31,7 @@
             <input type="number" id="colSize" class="form-control" value="1" required>
         </div>
     </div>
-    <div class="mb-3 row">
+    <div class="row mb-1">
         <div class="col-md-6">
             <label for="leftright" class="form-label">Duduk di sebelah</label>
             <select id="leftright" class="form-control">
@@ -47,16 +47,44 @@
             <input type="number" id="capacity" class="form-control" value="1" required>
         </div>
     </div>
-    <div class="col mb-3">
+    <div class="col mb-1">
         <label for="description" class="form-label">Deskripsi</label>
         <textarea id="description" rows="2" class="form-control"></textarea>
     </div>
-    <div class="col mb-3">
+    <div class="col mb-1">
         <label for="facility" class="form-label">Fasilitas/Kelengkapan</label>
         <textarea id="facility" rows="2" class="form-control"></textarea>
     </div>
-    <div class="mb-3 form-check form-switch" style="margin-top: 16px;">
-        <input class="form-check-input" type="checkbox" role="switch" id="active">
-        <label class="form-check-label" for="active" style="margin-left: 8px;">Aktif?</label>
+    <div class="row mb-1">
+        <label for="priceHourly" class="col-form-label col-md-4">Harga Per Jam</label>
+        <div class="col input-group">
+            <span class="input-group-text">IDR</span>
+            <input type="number" id="priceHourly" class="form-control" value="0" required>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <label for="priceDaily" class="col-form-label col-md-4">Harga Harian</label>
+        <div class="col input-group">
+            <span class="input-group-text">IDR</span>
+            <input type="number" id="priceDaily" class="form-control" value="0" required>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <label for="priceMonthly" class="col-form-label col-md-4">Harga Bulanan</label>
+        <div class="col input-group">
+            <span class="input-group-text">IDR</span>
+            <input type="number" id="priceMonthly" class="form-control" value="0" required>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <label for="priceAnnually" class="col-form-label col-md-4">Harga Tahunan</label>
+        <div class="col input-group">
+            <span class="input-group-text">IDR</span>
+            <input type="number" id="priceAnnually" class="form-control" value="0" required>
+        </div>
+    </div>
+    <div class="mb-1 form-check form-switch" style="margin-top: 16px;">
+        <input class="form-check-input" type="checkbox" role="switch" id="active" checked>
+        <label class="form-check-label ms-3" for="active">Aktif?</label>
     </div>
 </form>

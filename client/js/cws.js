@@ -13,6 +13,10 @@ function fn_master_cws() {
         <span class='input-group-text'>Lantai</span>
         <input type="number" id="cws_floor" class="form-control" value='${cws_floor}'>
         <button type="button" class="btn btn-outline-secondary" onclick="change_floor_cws()">Refresh</button>
+        <button type="button" class="btn btn-outline-secondary">
+            <i class="bi bi-download"></i>
+            Download
+        </button>
         <button type="button" class="btn btn-primary" onclick="fn_edit_cws(0)">
             <i class="bi bi-plus-lg"></i>
             Tambah
@@ -26,7 +30,6 @@ function fn_master_cws() {
 
 function change_floor_cws() {
     let lantai = document.getElementById('cws_floor').value;
-    console.log('lantai', Number(lantai));
     if (isNaN(Number(lantai))) {
         div_alert.insertAdjacentHTML('beforeend', html_alert('danger', 'Masukkan angka!'));
         timer_alert(5);
@@ -71,7 +74,7 @@ function parsing_master_cws(cws) {
                 add = c;
             }
             if (c == 0 && r == 0) {
-                add = '&nbsp;';
+                add = `<sub>row</sub>\\<sup>col</sup>`;
             }
 
             tbl += `<td id='space_${r}_${c}' class="space0 text-center align-middle" ${w}>
