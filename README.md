@@ -6,6 +6,9 @@ Point of sales system for cafe, bakery, restaurant. Built with :
 
 ## Features
 
+1. Point of sale system for Cafe/Restaurant
+2. Coworking Space
+
 ## Other Project Links
 
 1. [Decafein Printer Server](https://github.com/setiodewo/decafein-printer)
