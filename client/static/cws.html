@@ -1,0 +1,37 @@
+<div class="row d-flex flex-row flex-grow-1" style="height: 100%">
+    <div class="col d-flex flex-column" style="height: 100%">
+        <div class="row ms-1 mt-2">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a id="view_cws" 
+                    data-index="0"
+                    data-func="fn_view_cws"
+                    onclick="fn_cws_tab(this)"
+                    class="nav-link cws_tab active"
+                    title="View Coworking Space"
+                    href="#">Coworking Space</a>
+                </li>
+                <li class="nav-item">
+                    <a id="jadwal_cws" 
+                    data-index="1"
+                    data-func="fn_jadwal_cws"
+                    onclick="fn_cws_tab(this)"
+                    class="nav-link cws_tab"
+                    title="Jadwal Space"
+                    href="#">Jadwal Space</a>
+                </li>
+                <li class="nav-item">
+                    <a id="trx_cws" 
+                    data-index="2"
+                    data-func="fn_trx_cws"
+                    onclick="fn_cws_tab(this)"
+                    class="nav-link cws_tab"
+                    title="Daftar Transaksi"
+                    href="#">Daftar Transaksi</a>
+                </li>
+            </ul>
+        </div>
+        <div id="panel_cws" class="mb-3 mt-3"></div>
+        <div id="content_cws" class="overflow-auto flex-grow-1"></div>
+    </div>
+</div>

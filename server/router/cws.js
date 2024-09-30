@@ -22,7 +22,7 @@ router.get('/all', async(req, res) => {
             from space
             where cafeId = ? and floor = ? and active = 1`,
             [ req.headers.cafe, req.headers.floor ]);
-        if (rw.length > 0) _row = rw[0].MR;
+        if (rw.length > 0) _row = rw[0].MR == null? 0 : rw[0].MR;
         res.send({row: _row, data: r});
     } catch(err) {
         res.status(500).send(err);

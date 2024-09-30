@@ -1,9 +1,35 @@
 // Author : Emanuel Setio Dewo, 29/09/2024
 
 let cws_floor = 1;
+let cws_tab = 0;
+let cws_panel;
+let cws_content;
+let cws_date;
 
-function fn_coworkingspace() {
-    main.innerHTML = "Coworking space";
+async function fn_coworkingspace() {
+    main.innerHTML = await fetch_static('./static/cws.html');
+    cws_panel = document.getElementById('panel_cws');
+    cws_content = document.getElementById('content_cws');
+    const init_cws_tab = document.getElementById('view_cws');
+    init_cws_tab.click();
+}
+
+async function fn_cws_tab(tab) {
+    let aktif = document.getElementsByClassName('cws_tab active');
+    if (aktif.length > 0) {
+        for (let i = 0; i < aktif.length; i++) {
+            aktif[i].classList.remove('active');
+        }
+    }
+    tab.classList.add('active');
+    cws_tab = tab.dataset.index;
+
+    var f = tab.dataset.func;
+    if (typeof window[f] === 'function') {
+        await window[f]();
+    } else {
+        cws_content.innerHTML = `ERROR FUNCTION ${f}`;
+    }
 }
 
 function fn_master_cws() {
@@ -192,4 +218,97 @@ async function fn_simpan_cws(btn) {
             blank_prg.style.display = 'none';
             btn.style.display = 'inline-block';
     });
+}
+
+async function fn_view_cws() {
+    cws_panel.innerHTML = `
+    <div class="col-md-8">
+        <div class="col input-group">
+            <span class="input-group-text">Lantai</span>
+            <input type="Number" id="cws_floor" value="${cws_floor}" class="form-control">
+            <button type="button" class="btn btn-outline-secondary" onclick="fn_floor_cws(this)">
+            Refresh
+            </button>
+            <span class="input-group-text">Tanggal</span>
+            <input type="date" id="cws_date" class="form-control">
+        </div>
+    </div>
+    <table id="table_cws"></table>`;
+    
+    await fetch(`${API}/cws/all`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id,
+            'floor' : cws_floor
+        }
+    }).then(j => j.json()).then(data => {
+        cws_content.innerHTML = '';
+        if (data.row > 0) {
+            parsing_view_cws(data);
+        }
+    })
+}
+
+function fn_floor_cws(btn) {
+    let elm = document.getElementById('cws_floor');
+    if (isNaN(Number(elm.value))) {
+        div_alert.innerHTML = html_alert('danger', "Masukkan angka ke floor/lantai!");
+        timer_alert(5);
+        return false;
+    }
+
+    cws_floor = Number(elm.value);
+    fn_view_cws();
+}
+
+function parsing_view_cws(cws) {
+    let table_cws = document.getElementById('table_cws');
+    table_cws.innerHTML = '';
+    let tbl = '';
+    // place holder
+    for (let r = 1; r <= cws.row; r++) {
+        tbl += '<tr>';
+        for (let c = 1; c <= 12; c++) {
+            tbl += `<td id="space_${r}_${c}" class="space0 text-center align-middle"></td>`;
+        }
+        tbl += '</tr>';
+    }
+    table_cws.innerHTML = tbl;
+
+    // Masukkan datanya
+    cws.data.forEach(d => {
+        let id = `space_${d.rowNum}_${d.colNum}`;
+        let spc = document.getElementById(id);
+        // column
+        if (d.colSize > 1) {
+            for (let _col = 1; _col < d.colSize; _col++) {
+                let _colElm = document.getElementById(`space_${d.rowNum}_${d.colNum + _col}`);
+                _colElm.remove();
+            }
+            spc.setAttribute('colspan', d.colSize);
+        }
+        // row
+        if (d.rowSize > 1) {
+            for (let _row = 1; _row < d.rowSize; _row++) {
+                for (let _col = 0; _col < d.colSize; _col++) {
+                    let _rowElm = document.getElementById(`space_${d.rowNum + _row}_${d.colNum + _col}`);
+                    _rowElm.remove();
+                }
+            }
+            spc.setAttribute('rowspan', d.rowSize);
+        }
+        let leftright = '';
+        if (d.leftright == 1) {
+            leftright = 'space-left';
+        }
+        if (d.leftright == 2) {
+            leftright = 'space-right';
+        }
+        spc.innerHTML = `<div class='space1 align-middle ${leftright}'>
+            <a href="#" onclick="fn_edit_cws(${d.id}, ${d.rowNum}, ${d.colNum})">${d.name}</a>
+            </div>`;
+    })
 }
