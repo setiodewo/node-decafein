@@ -239,6 +239,7 @@ create table sale_payment(
     id bigint auto_increment primary key,
     saleId bigint,
     cafeId varchar(16),
+    payFor smallint,
     paymentType int,
     grandTotal decimal(10, 2),
     paymentCharge decimal(10, 2),
@@ -311,3 +312,51 @@ create table space (
     index(rowNum),
     index(colNum)
 );
+
+create table sale_space (
+    id bigint auto_increment primary key,
+    cafeId varchar(16),
+    customerId int,
+    rentType smallint default 1,
+    saleDate datetime,
+    startDate datetime,
+    endDate datetime,
+    spaceId int,
+    currency varchar(16) default 'IDR',
+    basePrice decimal(10, 2),
+    discount int,
+    amountDiscount decimal(10, 2),
+    tax decimal(5, 2),
+    amountTax decimal(10, 2),
+    total decimal(10, 2),
+    notes text,
+    statusId smallint default 0,
+    createdBy int,
+    createdAt datetime,
+    index(cafeId),
+    index(customerId),
+    index(rentType),
+    index(saleDate),
+    index(startDate),
+    index(endDate),
+    index(spaceId),
+    index(statusId),
+    index(createdBy)
+);
+
+# contoh data
+insert into sale_space values
+(1, 'DECAFEIN', 1, 2, now(), now(), DATE_ADD(now(), INTERVAL 1 DAY), 1, 'IDR', 100000,
+0, 0, 0, 0, 100000, '', 0, 1, now());
+
+create table rent_type (
+    id int primary key,
+    name varchar(32),
+    addition text
+);
+
+insert into rent_type values
+(1, 'Per Jam', 'INTERVAL 1 HOUR'),
+(2, 'Per Hari', 'INTERVAL 1 DAY'),
+(3, 'Per Bulan', 'INTERVAL 30 DAY'),
+(4, 'Per Tahun', 'INTERVAL 1 YEAR');

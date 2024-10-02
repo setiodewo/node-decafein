@@ -78,7 +78,8 @@ router.get('/edit/:id', async(req, res) => {
         h.totalTax, 
         format(h.totalTax, 0) as _totalTax,
         h.totalPaid, h.statusId, s.name as statusName,
-        h.notes, h.createdBy
+        h.notes, h.createdBy,
+        1 as payFor
         from sale_hdr h
         left outer join sale_status s on s.id = h.statusId
         where h.id = ? and h.cafeId = ?`, [
@@ -214,6 +215,7 @@ router.post('/pay', async(req, res) => {
         const [r, f] = await db.query(`insert into sale_payment 
             set saleId = ?,
             cafeId = ?,
+            payFor = ?,
             paymentType = ?,
             grandTotal = ?,
             paymentCharge = ?,
@@ -224,6 +226,7 @@ router.post('/pay', async(req, res) => {
             createdAt = now()`, [
                 req.body.id,
                 req.headers.cafe,
+                req.body.payFor,
                 req.body.paymentType,
                 req.body.grandTotal,
                 req.body.payCharge,

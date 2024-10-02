@@ -222,7 +222,7 @@ async function fn_simpan_cws(btn) {
 
 async function fn_view_cws() {
     cws_panel.innerHTML = `
-    <div class="col-md-8">
+    <div class="col-md-8 mb-2">
         <div class="col input-group">
             <span class="input-group-text">Lantai</span>
             <input type="Number" id="cws_floor" value="${cws_floor}" class="form-control">
@@ -248,6 +248,8 @@ async function fn_view_cws() {
         cws_content.innerHTML = '';
         if (data.row > 0) {
             parsing_view_cws(data);
+        } else {
+            table_cws.innerHTML = "<tr><td>Tidak ada data coworking space. Coba di lantai lain.</td></tr>";
         }
     })
 }
@@ -308,7 +310,7 @@ function parsing_view_cws(cws) {
             leftright = 'space-right';
         }
         spc.innerHTML = `<div class='space1 align-middle ${leftright}'>
-            <a href="#" onclick="fn_edit_cws(${d.id}, ${d.rowNum}, ${d.colNum})">${d.name}</a>
+            <a href="#" onclick="fn_pesan_cws(${d.id}, ${d.rowNum}, ${d.colNum})">${d.name}</a>
             </div>`;
     })
 }

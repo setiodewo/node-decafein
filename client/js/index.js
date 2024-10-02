@@ -1,6 +1,6 @@
 // Author : Emanuel Setio Dewo, 07/09/2024
 
-const API = "http://localhost:4000";
+const API = "http://192.168.1.19:4000";
 let profile = {};
 let cafe = {};
 
