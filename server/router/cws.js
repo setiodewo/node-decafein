@@ -29,6 +29,11 @@ router.get('/all', async(req, res) => {
     }
 });
 
+router .get('/type', async(req, res) => {
+    const [r, f] = await db.query(`select * from rent_type order by id`);
+    res.send(r);
+})
+
 router.get('/edit/:id', async(req, res) => {
     try {
         const [r, f] = await db.query(`select *, 0 as md

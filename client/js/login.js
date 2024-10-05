@@ -1,7 +1,5 @@
 // Author: Emanuel Setio Dewo, 06/09/2024
 
-const API = "http://192.168.1.19:4000";
-
 window.addEventListener("load", (ev) => {
     console.log("Resetting");
     //localStorage.removeItem("profile");

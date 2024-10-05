@@ -15,6 +15,8 @@ async function fn_coworkingspace() {
 }
 
 async function fn_cws_tab(tab) {
+    cws_panel.innerHTML = '';
+    cws_content.innerHTML = '';
     let aktif = document.getElementsByClassName('cws_tab active');
     if (aktif.length > 0) {
         for (let i = 0; i < aktif.length; i++) {
@@ -312,5 +314,54 @@ function parsing_view_cws(cws) {
         spc.innerHTML = `<div class='space1 align-middle ${leftright}'>
             <a href="#" onclick="fn_pesan_cws(${d.id}, ${d.rowNum}, ${d.colNum})">${d.name}</a>
             </div>`;
+    })
+}
+
+async function fn_pesan_cws(id, rowNum, colNum) {
+    const frm = await fetch_static('./static/frm_rent.html');
+    const tombol = `
+        <button type="button" class="btn btn-primary" onclick="fn_simpan_rent_space(this)">
+            <i class="bi bi-floppy me-1"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>`;
+    show_modal("Sewa Coworking Space", frm, tombol);
+    init_rent_type();
+    blank_prg.style.display = 'none';
+}
+
+async function fn_buat_customer() {
+    blank_dlg.hide();
+    fn_cws_tab(document.getElementById('cust_cws'));
+}
+
+async function init_rent_type() {
+    const tipe = document.getElementById('radio_rentType');
+    tipe.innerHTML = '';
+    await fetch(`${API}/cws/type`, {
+        method: 'GET',
+        headers: {
+            'Content-Type' : 'application/json',
+            'id' : profile.id,
+            'token' : profile.token,
+            'cafe' : cafe.id
+        }
+    }).then(j => {
+        if (j.status == 401) {
+            throw j.statusText;
+        } else return j.json();
+    }).then(tp => {
+        tp.forEach(t => {
+            tipe.insertAdjacentHTML('beforeend', `
+                <input type='radio'
+                    class='btn-check'
+                    name='rentType'
+                    id='rentType_${t.id}'
+                    value='${t.id}'
+                    onclick="ganti_tipe_cws(this)">
+                    <label class="btn btn-outline-secondary"
+                    for="rentType_${t.id}">
+                    ${t.name}</label>
+                </input>`)
+        })
     })
 }

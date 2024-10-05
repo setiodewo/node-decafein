@@ -323,6 +323,7 @@ create table sale_space (
     endDate datetime,
     spaceId int,
     currency varchar(16) default 'IDR',
+    quantity int,
     basePrice decimal(10, 2),
     discount int,
     amountDiscount decimal(10, 2),
@@ -347,7 +348,7 @@ create table sale_space (
 # contoh data
 insert into sale_space values
 (1, 'DECAFEIN', 1, 2, now(), now(), DATE_ADD(now(), INTERVAL 1 DAY), 1, 'IDR', 100000,
-0, 0, 0, 0, 100000, '', 0, 1, now());
+0, 0, 0, 0, 1, 100000, '', 0, 1, now());
 
 create table rent_type (
     id int primary key,
@@ -360,3 +361,6 @@ insert into rent_type values
 (2, 'Per Hari', 'INTERVAL 1 DAY'),
 (3, 'Per Bulan', 'INTERVAL 30 DAY'),
 (4, 'Per Tahun', 'INTERVAL 1 YEAR');
+
+
+select now() as startDate, concat(left(date_add(now(), interval 2 day), 10), ' 18:00:00') as endDate;

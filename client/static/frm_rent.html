@@ -1,0 +1,61 @@
+<form id="frm_rent_space">
+    <input type="hidden" id="id">
+    <input type="hidden" id="payFor" value="1">
+    <input type="hidden" id="finalAmount">
+    <input type="hidden" id="customerId">
+
+    <div class="mb-3 row">
+        <label for="spaceName" class="col-md-3 col-form-label">Space</label>
+        <div class="col input-group">
+            <input type="text" id="spaceName" class="form-control bg-body-secondary" readonly>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="customerName" class="col-md-3 col-form-label">Customer</label>
+        <div class="col input-group">
+            <input type="text" id="customerName" class="form-control" readonly>
+            <button class="btn btn-primary" onclick="fn_cari_customer()">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="btn btn-secondary" onclick="fn_buat_customer()">
+                <i class="bi bi-plus-lg me-1"></i>
+                Cust.
+            </button>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div id="radio_rentType" class="col btn-group"></div>
+    </div>
+    <div class="row mt-3 mb-3">
+        <label for="quantity" class="col-md-3 col-form-label">Jumlah</label>
+        <div class="col">
+            <input type="number" id="quantity" class="form-control">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="basePrice" class="col-md-3 col-form-label">Harga</label>
+        <div class="col input-group">
+            <span class="input-group-text" id="currency">IDR</span>
+            <input type="text" id="basePrice" class="form-control">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="basePrice" class="col-md-3 col-form-label">Diskon</label>
+        <div class="col input-group">
+            <input type="text" id="discount" class="form-control">
+            <span class="input-group-text">%</span>
+            <input type="text" id="amountDiscount" class="form-control bg-body-tertiary" readonly>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label id="taxName" for="basePrice" class="col-md-3 col-form-label">PPN</label>
+        <div class="col input-group">
+            <input type="text" id="tax" class="form-control">
+            <span class="input-group-text">%</span>
+            <input type="text" id="amountTax" class="form-control bg-body-tertiary" readonly>
+        </div>
+    </div>
+</form>
